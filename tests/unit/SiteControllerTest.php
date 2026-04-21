@@ -6,6 +6,7 @@ namespace app\tests\unit;
 
 use app\controllers\SiteController;
 use app\tests\support\fixtures\UserFixture;
+use RuntimeException;
 use Yii;
 use yii\mail\{BaseMailer, MailEvent};
 use yii\web\HttpException;
@@ -122,7 +123,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         ]);
 
         $handler = static function (): void {
-            throw new \RuntimeException('Simulated mailer transport exception.');
+            throw new RuntimeException('Simulated mailer transport exception.');
         };
 
         Yii::$app->mailer->on(BaseMailer::EVENT_BEFORE_SEND, $handler);
@@ -206,7 +207,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
-        Yii::$app->errorHandler->exception = new \RuntimeException('Something went wrong');
+        Yii::$app->errorHandler->exception = new RuntimeException('Something went wrong');
         $response = $controller->actionError();
 
         self::assertNotEmpty(

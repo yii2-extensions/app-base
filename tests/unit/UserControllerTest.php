@@ -741,6 +741,14 @@ final class UserControllerTest extends \Codeception\Test\Unit
             $response,
             "Expected 'actionVerifyEmail' to redirect home with error flash when verification fails.",
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when 'actionVerifyEmail' save fails.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when 'actionVerifyEmail' save fails.",
+        );
     }
 
     public function testActionVerifyEmailSuccess(): void
