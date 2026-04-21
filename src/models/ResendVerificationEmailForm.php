@@ -57,7 +57,7 @@ final class ResendVerificationEmailForm extends Model
         $cooldown = Yii::$app->params['user.resendVerificationEmailCooldown'];
 
         if ($cooldown > 0) {
-            $cacheKey = 'resend-verification-email:' . sha1(trim($this->email));
+            $cacheKey = 'resend-verification-email:' . sha1(strtolower(trim($this->email)));
             $cache = Yii::$app->cache;
 
             if ($cache->add($cacheKey, 1, $cooldown) === false && $cache->exists($cacheKey)) {

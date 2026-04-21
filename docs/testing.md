@@ -71,9 +71,9 @@ module.
 
 ### Mail capture
 
-Outgoing mail is routed through `app\tests\support\MailerBootstrap`, which configures `yii\symfonymailer\Mailer` with
-`useFileTransport: true`. Tests assert on the produced files in `runtime/mail/` via the Codeception `Filesystem`
-module.
+Outgoing mail in tests is configured in `config/test.php` (`yii\symfonymailer\Mailer` with `useFileTransport: true`).
+`app\tests\support\MailerBootstrap` ensures `MailerInterface` resolves to that same app mailer instance through the DI
+container. Tests assert on the produced files in `runtime/mail/` via the Codeception `Filesystem` module.
 
 ### Turnstile
 

@@ -152,7 +152,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         $this->tester?->seeEmailIsSent(1);
     }
 
-    public function testRateLimitDoesNotBlockLegitimateCaseAfterMismatchedCase(): void
+    public function testRateLimitNormalizesCaseSoMismatchedAttemptsCountTowardsCooldown(): void
     {
         $supportEmail = Yii::$app->params['supportEmail'];
 
@@ -170,8 +170,9 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         $legit->attributes = ['email' => 'test.test@example.com'];
 
         verify($legit->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->true(
-                'Failed asserting that a legitimate case-correct resend is not blocked by a prior case-mismatched request.',
+            ->false(
+                'Failed asserting that a case-correct resend is rate-limited after a prior case-mismatched attempt to '
+                . 'the same address.',
             );
     }
 
