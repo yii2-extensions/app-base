@@ -7,7 +7,6 @@ namespace app\tests\unit;
 use app\controllers\{SiteController, UserController};
 use app\tests\support\fixtures\UserFixture;
 use Yii;
-use yii\web\Response;
 
 /**
  * Unit tests for {@see \app\controllers\UserController} login action and {@see \app\controllers\SiteController} about

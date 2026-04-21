@@ -32,9 +32,9 @@ package:
 - `copy` lists every path (file or directory) the plugin copies into the consumer.
 - `modes` overrides the default mode on a per-path glob basis.
 
-Dev-only files (`tests/`, `composer.json`, `phpunit.xml.dist`, `phpstan.neon`, `.git*`,
-`README.md`, `CHANGELOG.md`, `LICENSE`) are filtered by scaffold's default excludes and
-stay inside the provider repo for its own CI. They never reach the consumer.
+Dev-only files (`tests/`, `composer.json`, `phpunit.xml.dist`, `phpstan.neon`, `.git*`, `README.md`, `CHANGELOG.md`,
+`LICENSE`) are filtered by scaffold's default excludes and stay inside the provider repository for its own CI. They
+never reach the consumer.
 
 ## File modes
 

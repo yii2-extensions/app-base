@@ -11,7 +11,7 @@ use Yii;
 use yii\base\{Event, ModelEvent};
 use yii\db\BaseActiveRecord;
 use yii\mail\{BaseMailer, MailEvent};
-use yii\web\{BadRequestHttpException, Response};
+use yii\web\{BadRequestHttpException};
 
 /**
  * Unit tests for {@see UserController} all actions.

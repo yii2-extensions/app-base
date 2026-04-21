@@ -16,9 +16,12 @@ permissions:
   contents: read
 
 jobs:
-  phpunit:
-    uses: yii2-framework/actions/.github/workflows/phpunit.yml@v1
+  codeception:
+    uses: yii2-framework/actions/.github/workflows/codeception.yml@v1
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
+      codeception-command: vendor/bin/codecept run --env php-builtin --coverage-xml
+      coverage-file: tests/support/output/coverage.xml
+      extensions: dom, json, gd, imagick, pdo_sqlite
       php-version: '["8.3","8.4","8.5"]'
