@@ -38,6 +38,20 @@ A consumer project that combines the base with an overlay looks like this in ful
                 "yii2-extensions/app-base",
                 "yii2-extensions/app-jquery"
             ]
+        },
+        "yii\\composer\\Installer::postCreateProject": {
+            "setPermission": [
+                {
+                    "runtime": "0775",
+                    "public/assets": "0775",
+                    "yii": "0755"
+                }
+            ]
+        },
+        "yii\\composer\\Installer::postInstall": {
+            "generateCookieValidationKey": [
+                "config/web.php"
+            ]
         }
     },
     "config": {
@@ -45,6 +59,15 @@ A consumer project that combines the base with an overlay looks like this in ful
             "yii2-extensions/scaffold": true,
             "yiisoft/yii2-composer": true
         }
+    },
+    "scripts": {
+        "post-create-project-cmd": [
+            "yii\\composer\\Installer::postCreateProject",
+            "yii\\composer\\Installer::postInstall"
+        ],
+        "post-install-cmd": [
+            "yii\\composer\\Installer::postInstall"
+        ]
     }
 }
 ```

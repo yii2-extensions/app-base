@@ -45,6 +45,20 @@
         },
         "scaffold": {
             "manifest": "scaffold.json"
+        },
+        "yii\\composer\\Installer::postCreateProject": {
+            "setPermission": [
+                {
+                    "runtime": "0775",
+                    "public/assets": "0775",
+                    "yii": "0755"
+                }
+            ]
+        },
+        "yii\\composer\\Installer::postInstall": {
+            "generateCookieValidationKey": [
+                "config/web.php"
+            ]
         }
     },
     "config": {
@@ -58,6 +72,13 @@
     "scripts": {
         "check-dependencies": "./vendor/bin/composer-require-checker check",
         "ecs": "./vendor/bin/ecs --fix",
+        "post-create-project-cmd": [
+            "yii\\composer\\Installer::postCreateProject",
+            "yii\\composer\\Installer::postInstall"
+        ],
+        "post-install-cmd": [
+            "yii\\composer\\Installer::postInstall"
+        ],
         "static": "./vendor/bin/phpstan --memory-limit=-1",
         "tests": "vendor/bin/codecept run"
     }

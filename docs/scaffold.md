@@ -104,7 +104,7 @@ vendor/bin/scaffold reapply config/params.php --force
 
 Remove `yii2-extensions/app-base` from `require` and from `extra.scaffold.allowed-packages`, then `composer update`.
 
-Scaffold removes the lockfile entries for the provider but does not delete files from disk ; you own them now.
+Scaffold removes the lockfile entries for the provider but does not delete files from disk; you own them now.
 
 ## Upstream reference
 

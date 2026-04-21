@@ -78,6 +78,20 @@ Create a new directory for your app, drop in this `composer.json`, then run `com
                 "yii2-extensions/app-base",
                 "yii2-extensions/app-jquery"
             ]
+        },
+        "yii\\composer\\Installer::postCreateProject": {
+            "setPermission": [
+                {
+                    "runtime": "0775",
+                    "public/assets": "0775",
+                    "yii": "0755"
+                }
+            ]
+        },
+        "yii\\composer\\Installer::postInstall": {
+            "generateCookieValidationKey": [
+                "config/web.php"
+            ]
         }
     },
     "config": {
@@ -85,6 +99,15 @@ Create a new directory for your app, drop in this `composer.json`, then run `com
             "yii2-extensions/scaffold": true,
             "yiisoft/yii2-composer": true
         }
+    },
+    "scripts": {
+        "post-create-project-cmd": [
+            "yii\\composer\\Installer::postCreateProject",
+            "yii\\composer\\Installer::postInstall"
+        ],
+        "post-install-cmd": [
+            "yii\\composer\\Installer::postInstall"
+        ]
     }
 }
 ```
@@ -92,7 +115,7 @@ Create a new directory for your app, drop in this `composer.json`, then run `com
 Then:
 
 ```bash
-composer install                                        # scaffold copies the tree in
+composer install                                        # scaffold copies the tree in + autogenerates cookieValidationKey
 ./yii migrate                                           # creates the user table + admin user
 php -S localhost:8080 -t public public/router.php       # start the dev server
 ```

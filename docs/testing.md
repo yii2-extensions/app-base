@@ -84,7 +84,7 @@ test reinstates the key and stubs the HTTP response.
 ### Coverage
 
 Codeception's coverage is enabled for `/src/*`. Reports are written under `tests/support/output/coverage/` (HTML) and
-`tests/support/output/coverage.txt` (text). The suite holds **100 % line and method coverage** across controllers,
+`tests/support/output/coverage.txt` (text). The suite holds **100% line and method coverage** across controllers,
 models, forms, and migrations.
 
 ## Coding standards
