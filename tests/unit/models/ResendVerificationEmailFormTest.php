@@ -152,30 +152,6 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         $this->tester?->seeEmailIsSent(1);
     }
 
-    public function testRateLimitNormalizesCaseSoMismatchedAttemptsCountTowardsCooldown(): void
-    {
-        $supportEmail = Yii::$app->params['supportEmail'];
-
-        $mismatched = new ResendVerificationEmailForm();
-
-        $mismatched->attributes = ['email' => 'TEST.TEST@EXAMPLE.COM'];
-
-        verify($mismatched->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                "Failed asserting that 'sendEmail' returns 'false' for a case-mismatched address (lookup misses).",
-            );
-
-        $legit = new ResendVerificationEmailForm();
-
-        $legit->attributes = ['email' => 'test.test@example.com'];
-
-        verify($legit->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                'Failed asserting that a case-correct resend is rate-limited after a prior case-mismatched attempt to '
-                . 'the same address.',
-            );
-    }
-
     public function testRateLimitFailsOpenWhenCacheBackendWriteFails(): void
     {
         $failingCache = new class extends \yii\caching\ArrayCache {
@@ -208,6 +184,30 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         } finally {
             Yii::$app->set('cache', $originalCache);
         }
+    }
+
+    public function testRateLimitNormalizesCaseSoMismatchedAttemptsCountTowardsCooldown(): void
+    {
+        $supportEmail = Yii::$app->params['supportEmail'];
+
+        $mismatched = new ResendVerificationEmailForm();
+
+        $mismatched->attributes = ['email' => 'TEST.TEST@EXAMPLE.COM'];
+
+        verify($mismatched->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
+            ->false(
+                "Failed asserting that 'sendEmail' returns 'false' for a case-mismatched address (lookup misses).",
+            );
+
+        $legit = new ResendVerificationEmailForm();
+
+        $legit->attributes = ['email' => 'test.test@example.com'];
+
+        verify($legit->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
+            ->false(
+                'Failed asserting that a case-correct resend is rate-limited after a prior case-mismatched attempt to '
+                . 'the same address.',
+            );
     }
 
     public function testResendToActiveUser(): void
