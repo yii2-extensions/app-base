@@ -52,15 +52,14 @@ Application parameters are read from `params.php` by both `web.php` and `console
 
 Wires the web application:
 
-- `authManager` ; `yii\rbac\PhpManager`, fed by `rbac/items.php`, `rbac/rules.php`,
-  `rbac/assignments.php`.
+- `authManager` ; `yii\rbac\PhpManager`, fed by `rbac/items.php`, `rbac/rules.php`, `rbac/assignments.php`.
 - `user.identityClass` ; points at `app\models\User` from `src/models/User.php`.
 - `user.loginUrl` ; `['user/login']`.
 - `mailer` ; `MailerInterface` with `useFileTransport: true` and view path set to `@app/resources/mail`. **Disable
   `useFileTransport` for production** and configure an SMTP transport instead.
 - `errorHandler.errorAction` ; `site/error` (rendered by `SiteController::actionError`).
 - `urlManager.enablePrettyUrl` and `showScriptName: false`.
-- `request.cookieValidationKey` ; **placeholder `'1'`**; set to a 32-byte secret before deployment.
+- `request.cookieValidationKey` ; **placeholder `''`**; set to a 32-byte secret before deployment.
 
 ## `config/console.php`
 
