@@ -1,0 +1,12 @@
+---
+# Codeception Test Suite Configuration
+#
+# Acceptance tests dispatched through the full Yii2 pipeline so AccessControl and VerbFilter
+# behaviors declared by controllers are actually exercised (unit tests call action methods
+# directly and therefore bypass the behavior pipeline).
+actor: AcceptanceTester
+modules:
+  enabled:
+    - Filesystem
+    - Yii2
+    - Asserts
