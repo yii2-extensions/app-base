@@ -34,6 +34,41 @@ final class UserController extends Controller
     }
 
     /**
+     * Confirms the email verification submitted from the interstitial form.
+     *
+     * Performing the actual verification only on POST prevents email link scanners (Outlook SafeLinks, antivirus,
+     * browser prefetch) from silently consuming the single-use token before the recipient clicks.
+     *
+     * @throws BadRequestHttpException if the token is invalid.
+     *
+     * @return Response Redirect to the home page with a flash message.
+     */
+    public function actionConfirmEmail(string $token): Response
+    {
+        try {
+            $model = new VerifyEmailForm($token);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
+
+        if ($model->verifyEmail() !== null) {
+            Yii::$app->session->setFlash(
+                'success',
+                'Your email has been confirmed!',
+            );
+
+            return $this->goHome();
+        }
+
+        Yii::$app->session->setFlash(
+            'error',
+            'Sorry, we are unable to verify your account with provided token.',
+        );
+
+        return $this->goHome();
+    }
+
+    /**
      * Displays user list.
      *
      * @return string Rendered user list view.
@@ -265,13 +300,17 @@ final class UserController extends Controller
     }
 
     /**
-     * Verifies email address.
+     * Renders the email verification interstitial form.
+     *
+     * The actual verification is performed by {@see actionConfirmEmail()} on POST so that single-use tokens are not
+     * silently consumed by email link scanners (Outlook SafeLinks, antivirus, browser prefetch) before the recipient
+     * clicks.
      *
      * @throws BadRequestHttpException if the token is invalid.
      *
-     * @return Response Redirect to the home page with a flash message.
+     * @return string Rendered confirmation form.
      */
-    public function actionVerifyEmail(string $token): Response
+    public function actionVerifyEmail(string $token): string
     {
         try {
             $model = new VerifyEmailForm($token);
@@ -279,21 +318,7 @@ final class UserController extends Controller
             throw new BadRequestHttpException($e->getMessage());
         }
 
-        if ($model->verifyEmail() !== null) {
-            Yii::$app->session->setFlash(
-                'success',
-                'Your email has been confirmed!',
-            );
-
-            return $this->goHome();
-        }
-
-        Yii::$app->session->setFlash(
-            'error',
-            'Sorry, we are unable to verify your account with provided token.',
-        );
-
-        return $this->goHome();
+        return $this->render('verify-email', ['model' => $model, 'token' => $token]);
     }
 
     public function behaviors(): array
@@ -302,6 +327,7 @@ final class UserController extends Controller
             'access' => [
                 'class' => AccessControl::class,
                 'only' => [
+                    'confirm-email',
                     'index',
                     'login',
                     'logout',
@@ -323,7 +349,7 @@ final class UserController extends Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['reset-password', 'verify-email'],
+                        'actions' => ['confirm-email', 'reset-password', 'verify-email'],
                         'allow' => true,
                         'roles' => ['?', '@'],
                     ],
@@ -342,6 +368,7 @@ final class UserController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
+                    'confirm-email' => ['post'],
                     'index' => ['get'],
                     'logout' => ['post'],
                 ],

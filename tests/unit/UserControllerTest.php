@@ -36,6 +36,113 @@ final class UserControllerTest extends \Codeception\Test\Unit
         ];
     }
 
+    public function testActionConfirmEmailFailure(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/confirm-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findOne(['username' => 'test.fail', 'status' => User::STATUS_INACTIVE]);
+
+        self::assertInstanceOf(
+            User::class,
+            $user,
+            "Fixture user 'test.fail' must exist.",
+        );
+
+        $token = $user->verification_token;
+
+        self::assertNotNull(
+            $token,
+            "Fixture user 'test.fail' must have a verification token.",
+        );
+
+        $handler = static function (ModelEvent $event): void {
+            $event->isValid = false;
+        };
+
+        Event::on(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+
+        try {
+            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+            Yii::$app->controller = $controller;
+
+            $response = $controller->actionConfirmEmail($token);
+        } finally {
+            Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+        }
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionConfirmEmail' to redirect home with error flash when verification fails.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when 'actionConfirmEmail' save fails.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when 'actionConfirmEmail' save fails.",
+        );
+    }
+
+    public function testActionConfirmEmailSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/confirm-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findOne(['username' => 'test.test', 'status' => User::STATUS_INACTIVE]);
+
+        self::assertInstanceOf(
+            User::class,
+            $user,
+            "Fixture user 'test.test' must exist.",
+        );
+
+        $token = $user->verification_token;
+
+        self::assertNotNull(
+            $token,
+            "Fixture user 'test.test' must have a verification token.",
+        );
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionConfirmEmail($token);
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionConfirmEmail' to redirect home on successful email verification.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash to be set when 'actionConfirmEmail' verifies the user.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash NOT to be set on successful verification.",
+        );
+    }
+
+    public function testActionConfirmEmailThrowsOnInvalidToken(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/confirm-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Wrong verify email token.');
+
+        $controller->actionConfirmEmail('invalid-token');
+    }
+
     public function testActionIndexReturnsResponse(): void
     {
         $_SERVER['REQUEST_URI'] = '/user';
@@ -602,6 +709,7 @@ final class UserControllerTest extends \Codeception\Test\Unit
         Yii::$app->controller = $controller;
 
         $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Wrong password reset token.');
 
         $controller->actionResetPassword('invalid-token');
     }
@@ -708,50 +816,7 @@ final class UserControllerTest extends \Codeception\Test\Unit
         );
     }
 
-    public function testActionVerifyEmailFailure(): void
-    {
-        $_SERVER['REQUEST_URI'] = '/user/verify-email';
-        $_SERVER['SERVER_NAME'] = 'localhost';
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-
-        $user = User::findOne(['username' => 'test.fail', 'status' => User::STATUS_INACTIVE]);
-
-        self::assertInstanceOf(User::class, $user, "Fixture user 'test.fail' must exist.");
-
-        $token = $user->verification_token;
-
-        self::assertNotNull($token, "Fixture user 'test.fail' must have a verification token.");
-
-        $handler = static function (ModelEvent $event): void {
-            $event->isValid = false;
-        };
-
-        Event::on(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
-
-        try {
-            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
-
-            Yii::$app->controller = $controller;
-            $response = $controller->actionVerifyEmail($token);
-        } finally {
-            Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
-        }
-
-        self::assertNotEmpty(
-            $response,
-            "Expected 'actionVerifyEmail' to redirect home with error flash when verification fails.",
-        );
-        self::assertTrue(
-            Yii::$app->session->hasFlash('error'),
-            "Expected 'error' flash to be set when 'actionVerifyEmail' save fails.",
-        );
-        self::assertFalse(
-            Yii::$app->session->hasFlash('success'),
-            "Expected 'success' flash NOT to be set when 'actionVerifyEmail' save fails.",
-        );
-    }
-
-    public function testActionVerifyEmailSuccess(): void
+    public function testActionVerifyEmailRendersInterstitial(): void
     {
         $_SERVER['REQUEST_URI'] = '/user/verify-email';
         $_SERVER['SERVER_NAME'] = 'localhost';
@@ -772,7 +837,21 @@ final class UserControllerTest extends \Codeception\Test\Unit
 
         self::assertNotEmpty(
             $response,
-            "Expected 'actionVerifyEmail' to redirect home on successful email verification.",
+            "Expected 'actionVerifyEmail' to render the interstitial confirmation view.",
+        );
+        self::assertStringContainsString(
+            'user/confirm-email',
+            $response,
+            "Expected the interstitial form to POST to 'user/confirm-email'.",
+        );
+
+        $reloaded = User::findOne(['username' => 'test.test']);
+
+        self::assertInstanceOf(User::class, $reloaded);
+        self::assertSame(
+            User::STATUS_INACTIVE,
+            $reloaded->status,
+            "Expected GET on 'verify-email' NOT to consume the token or activate the user.",
         );
     }
 
@@ -787,6 +866,7 @@ final class UserControllerTest extends \Codeception\Test\Unit
         Yii::$app->controller = $controller;
 
         $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Wrong verify email token.');
 
         $controller->actionVerifyEmail('invalid-token');
     }

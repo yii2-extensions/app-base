@@ -73,6 +73,18 @@ final class UserAccessCest
         $I->dontSeeResponseCodeIs(403);
     }
 
+    public function getOnConfirmEmailIsRejected(AcceptanceTester $I): void
+    {
+        $owner = User::findOne(['username' => 'test.test']);
+
+        $I->assertNotNull(
+            $owner,
+            "Expected fixture user 'test.test' to exist.",
+        );
+        $I->amOnRoute('user/confirm-email', ['token' => $owner->verification_token]);
+        $I->seeResponseCodeIs(405);
+    }
+
     public function getVerbIsRejectedOnLogout(AcceptanceTester $I): void
     {
         $this->loginAs($I, 'admin');
