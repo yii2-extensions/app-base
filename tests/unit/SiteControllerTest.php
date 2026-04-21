@@ -103,6 +103,14 @@ final class SiteControllerTest extends \Codeception\Test\Unit
             $response,
             "Expected 'actionContact' to redirect with error flash when mailer fails.",
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when mailer fails without validation errors.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when mailer fails.",
+        );
     }
 
     public function testActionContactPostMailerThrows(): void
@@ -140,6 +148,14 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         self::assertNotEmpty(
             $response,
             "Expected 'actionContact' to return Response when mailer throws instead of propagating exception.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when the mailer throws and the exception is caught.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when the mailer throws.",
         );
     }
 
@@ -196,6 +212,14 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         self::assertNotEmpty(
             $response,
             "Expected 'actionContact' to redirect with errors flash on validation failure.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected 'errors' flash to be set when the contact form fails validation.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when validation fails.",
         );
     }
 

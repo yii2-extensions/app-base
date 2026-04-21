@@ -7,6 +7,7 @@ namespace app\tests\unit\models;
 use app\models\LoginForm;
 use app\tests\support\fixtures\UserFixture;
 use Yii;
+use yii\log\Logger;
 
 /**
  * Unit tests for {@see \app\models\LoginForm} model.
@@ -40,7 +41,7 @@ final class LoginFormTest extends \Codeception\Test\Unit
         );
 
         $originalLogger = Yii::getLogger();
-        $realLogger = new \yii\log\Logger();
+        $realLogger = new Logger();
 
         Yii::setLogger($realLogger);
 
@@ -203,7 +204,7 @@ final class LoginFormTest extends \Codeception\Test\Unit
         Yii::$app->user->logout();
     }
 
-    private function countDbQueries(\yii\log\Logger $logger): int
+    private function countDbQueries(Logger $logger): int
     {
         $count = 0;
 
