@@ -7,6 +7,7 @@ namespace app\tests\unit;
 use app\controllers\UserController;
 use app\models\User;
 use app\tests\support\fixtures\UserFixture;
+use RuntimeException;
 use Yii;
 use yii\base\{Event, ModelEvent};
 use yii\db\BaseActiveRecord;
@@ -516,7 +517,7 @@ final class UserControllerTest extends \Codeception\Test\Unit
         ]);
 
         $handler = static function (): void {
-            throw new \RuntimeException('Simulated DB failure during password save.');
+            throw new RuntimeException('Simulated DB failure during password save.');
         };
 
         Event::on(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
