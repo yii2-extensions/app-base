@@ -317,12 +317,15 @@ final class UserController extends Controller
                             'login',
                             'request-password-reset',
                             'resend-verification-email',
-                            'reset-password',
                             'signup',
-                            'verify-email',
                         ],
                         'allow' => true,
                         'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['reset-password', 'verify-email'],
+                        'allow' => true,
+                        'roles' => ['?', '@'],
                     ],
                     [
                         'actions' => ['index'],

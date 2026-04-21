@@ -52,6 +52,13 @@ final class LoginFormTest extends \Codeception\Test\Unit
 
             $countAfterFirst = $this->countDbQueries($realLogger);
 
+            verify($countAfterFirst)
+                ->greaterThan(
+                    0,
+                    "Failed asserting that the first 'getUser()' call actually issued a DB query; "
+                    . 'a count of 0 would pass the later equality check as a false positive.',
+                );
+
             verify($model->getUser())
                 ->null(
                     "Failed asserting that 'getUser()' returns 'null' on the second call for a non-existent username.",

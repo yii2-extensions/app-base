@@ -45,6 +45,34 @@ final class UserAccessCest
         $I->seeResponseCodeIs(403);
     }
 
+    public function authenticatedUserCanReachResetPasswordWithToken(AcceptanceTester $I): void
+    {
+        $this->loginAs($I, 'admin');
+
+        $owner = User::findByUsername('okirlin');
+
+        $I->assertNotNull(
+            $owner,
+            "Expected fixture user 'okirlin' to exist.",
+        );
+        $I->amOnRoute('user/reset-password', ['token' => $owner->password_reset_token]);
+        $I->dontSeeResponseCodeIs(403);
+    }
+
+    public function authenticatedUserCanReachVerifyEmailWithToken(AcceptanceTester $I): void
+    {
+        $this->loginAs($I, 'admin');
+
+        $owner = User::findOne(['username' => 'test.test']);
+
+        $I->assertNotNull(
+            $owner,
+            "Expected fixture user 'test.test' to exist.",
+        );
+        $I->amOnRoute('user/verify-email', ['token' => $owner->verification_token]);
+        $I->dontSeeResponseCodeIs(403);
+    }
+
     public function getVerbIsRejectedOnLogout(AcceptanceTester $I): void
     {
         $this->loginAs($I, 'admin');
