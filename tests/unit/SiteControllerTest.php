@@ -8,7 +8,7 @@ use app\controllers\SiteController;
 use app\tests\support\fixtures\UserFixture;
 use Yii;
 use yii\mail\{BaseMailer, MailEvent};
-use yii\web\{HttpException};
+use yii\web\HttpException;
 
 /**
  * Unit tests for {@see SiteController} all actions.

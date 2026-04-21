@@ -1,8 +1,7 @@
 # Configuration reference
 
-Every file listed here is shipped with `mode: preserve` (see
-[scaffold.md](scaffold.md)), so edits are safe: scaffold will not overwrite them on
-subsequent `composer install` runs.
+Every file listed here is shipped with `mode: preserve` (see [scaffold.md](scaffold.md)), so edits are safe: scaffold
+will not overwrite them on subsequent `composer install` runs.
 
 ## `config/db.php`
 
@@ -15,14 +14,12 @@ return [
 ];
 ```
 
-Switch to MySQL, PostgreSQL, or any other driver supported by Yii2 by editing the
-`dsn`, `username`, and `password` keys. The same connection is reused by
-`config/console.php`, so migrations automatically target the configured database.
+Switch to MySQL, PostgreSQL, or any other driver supported by Yii2 by editing the `dsn`, `username`, and `password`
+keys. The same connection is reused by `config/console.php`, so migrations automatically target the configured database.
 
 ## `config/test_db.php`
 
-Test-only connection, defaults to a separate SQLite file at
-`tests/support/data/test.sqlite`:
+Test-only connection, defaults to a separate SQLite file at `tests/support/data/test.sqlite`:
 
 ```php
 return [
@@ -59,21 +56,18 @@ Wires the web application:
   `rbac/assignments.php`.
 - `user.identityClass` ; points at `app\models\User` from `src/models/User.php`.
 - `user.loginUrl` ; `['user/login']`.
-- `mailer` ; `MailerInterface` with `useFileTransport: true` and view path set to
-  `@app/resources/mail`. **Disable `useFileTransport` for production** and configure an
-  SMTP transport instead.
+- `mailer` ; `MailerInterface` with `useFileTransport: true` and view path set to `@app/resources/mail`. **Disable
+  `useFileTransport` for production** and configure an SMTP transport instead.
 - `errorHandler.errorAction` ; `site/error` (rendered by `SiteController::actionError`).
 - `urlManager.enablePrettyUrl` and `showScriptName: false`.
-- `request.cookieValidationKey` ; **placeholder `'1'`**; set to a 32-byte secret
-  before deployment.
+- `request.cookieValidationKey` ; **placeholder `'1'`**; set to a 32-byte secret before deployment.
 
 ## `config/console.php`
 
 Console application configuration. Highlights:
 
 - `controllerMap.migrate` ; `MigrateController` with `migrationNamespaces: ['app\\migrations']`.
-- `controllerMap.serve` ; `ServeController` with `docroot: '@app/public'` (for
-  `./yii serve`).
+- `controllerMap.serve` ; `ServeController` with `docroot: '@app/public'` (for `./yii serve`).
 - `aliases.@app/migrations`, `@npm`, `@tests`.
 
 ## `config/test.php`
@@ -93,14 +87,13 @@ Three preserve-mode files implementing Yii2's `PhpManager` RBAC:
 - `rbac/rules.php` ; rule classes (e.g. "owner can update own post").
 - `rbac/assignments.php` ; user-to-role assignments.
 
-Edit these directly or replace the backend with a different `authManager` in
-`config/web.php` / `config/console.php`.
+Edit these directly or replace the backend with a different `authManager` in `config/web.php` / `config/console.php`.
 
 ## Mail templates
 
 Preserve mode does **not** cover `resources/mail/*` (those are under `replace`).
-Rebrand the templates in place if you want to keep them tracked by scaffold, or
-`scaffold eject` individual templates to take full ownership.
+Rebrand the templates in place if you want to keep them tracked by scaffold, or `scaffold eject` individual templates to
+take full ownership.
 
 Files:
 

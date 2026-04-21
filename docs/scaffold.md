@@ -1,12 +1,11 @@
 # Scaffold workflow
 
-How the [`yii2-extensions/scaffold`][scaffold] plugin applies `app-base` to a consumer
-project, and how to live with the scaffolded files over time.
+How the [`yii2-extensions/scaffold`][scaffold] plugin applies `app-base` to a consumer project, and how to live with the
+scaffolded files over time.
 
 ## The provider manifest
 
-Every file `app-base` contributes is declared in `scaffold.json` at the root of this
-package:
+Every file `app-base` contributes is declared in `scaffold.json` at the root of this package:
 
 ```json
 {
@@ -45,24 +44,23 @@ never reach the consumer.
 | `replace`  | Default. Re-copies the stub on every install; overwrites user edits unless `--no-force`. |
 | `preserve` | Written once. Subsequent installs leave the on-disk file untouched.                      |
 
-Preserved paths (`config/*.php`, `rbac/*.php`, `public/assets/.gitkeep`,
-`public/images/**`, `runtime/.gitignore`) are the files you are **expected** to edit:
-db credentials, params, RBAC graph, runtime gitignores. Everything else
-(`src/*`, `resources/*`, `public/index.php`, etc.) is replaced on install, so if you
-edit those files scaffold will warn on the next install.
+Preserved paths (`config/*.php`, `rbac/*.php`, `public/assets/.gitkeep`, `public/images/**`, `runtime/.gitignore`) are
+the files you are **expected** to edit: db credentials, params, RBAC graph, runtime gitignores. Everything else
+(`src/*`, `resources/*`, `public/index.php`, etc.) is replaced on install, so if you edit those files scaffold will warn
+on the next install.
 
 For the full list of available modes, see
 [`scaffold/docs/modes.md`](https://github.com/yii2-extensions/scaffold/blob/main/docs/modes.md).
 
 ## The lockfile
 
-After the first successful install, the root of your consumer project contains a
-`scaffold-lock.json` that records the SHA-256 hash of every copied file.
+After the first successful install, the root of your consumer project contains a `scaffold-lock.json` that records the
+SHA-256 hash of every copied file.
 
-- **Commit it** next to `composer.lock`. It lets CI and collaborators reproduce the
-  exact scaffold state and detect drift.
-- The `status` command compares on-disk hashes against the lockfile to classify each
-  file as `synced`, `modified`, or `missing`.
+- **Commit it** next to `composer.lock`. It lets CI and collaborators reproduce the exact scaffold state and detect
+  drift.
+- The `status` command compares on-disk hashes against the lockfile to classify each file as `synced`, `modified`, or
+  `missing`.
 
 ## Inspecting the scaffold
 
@@ -92,8 +90,7 @@ vendor/bin/scaffold reapply src/controllers/UserController.php --force
 vendor/bin/scaffold eject src/controllers/UserController.php --yes
 ```
 
-After ejection, the file is no longer tracked. Future `composer install` runs will not
-touch it.
+After ejection, the file is no longer tracked. Future `composer install` runs will not touch it.
 
 ### Re-seed a `preserve` file that was accidentally deleted
 
@@ -101,14 +98,13 @@ touch it.
 vendor/bin/scaffold reapply config/params.php --force
 ```
 
-`preserve` only prevents **overwrites**; if the file is missing, reapply writes a
-fresh copy.
+`preserve` only prevents **overwrites**; if the file is missing, reapply writes a fresh copy.
 
 ### Uninstall the provider
 
-Remove `yii2-extensions/app-base` from `require` and from `extra.scaffold.allowed-packages`,
-then `composer update`. Scaffold removes the lockfile entries for the provider but
-does not delete files from disk ; you own them now.
+Remove `yii2-extensions/app-base` from `require` and from `extra.scaffold.allowed-packages`, then `composer update`.
+
+Scaffold removes the lockfile entries for the provider but does not delete files from disk ; you own them now.
 
 ## Upstream reference
 

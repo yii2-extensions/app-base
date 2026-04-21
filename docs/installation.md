@@ -7,14 +7,14 @@ Step-by-step walkthrough for starting a Yii2 project with `yii2-extensions/app-b
 - [PHP](https://www.php.net/downloads) `8.3` or higher.
 - [Composer](https://getcomposer.org/download/) `2.9` or higher.
 
-`app-base` is a scaffold **provider**, not a runtime library. It contributes files;
-it does not ship a class to extend. See [scaffold.md](scaffold.md) for the underlying
-mechanism.
+`app-base` is a scaffold **provider**, not a runtime library. It contributes files; it does not ship a class to extend.
+
+See [scaffold.md](scaffold.md) for the underlying mechanism.
 
 ## 1. Create the project's `composer.json`
 
-Make a fresh directory and save the following as `composer.json` in its root. This is
-the full manifest a consumer project needs ; nothing is omitted.
+Make a fresh directory and save the following as `composer.json` in its root. This is the full manifest a consumer
+project needs ; nothing is omitted.
 
 ```json
 {
@@ -67,9 +67,9 @@ the full manifest a consumer project needs ; nothing is omitted.
 composer install
 ```
 
-The scaffold plugin runs automatically at the end of install and copies the provider
-trees into the project root. You should now see `src/`, `config/`, `rbac/`,
-`resources/`, `public/`, `yii`, and `scaffold-lock.json`.
+The scaffold plugin runs automatically at the end of install and copies the provider trees into the project root.
+
+You should now see `src/`, `config/`, `rbac/`, `resources/`, `public/`, `yii`, and `scaffold-lock.json`.
 
 Verify the result:
 
@@ -87,8 +87,8 @@ git commit -m "chore: scaffold yii2-extensions/app-base"
 
 ## 3. Make `runtime/` and `public/assets/` writable
 
-The provider ships only placeholders for these directories. Yii2 writes caches, logs,
-the SQLite database, and compiled assets into them at runtime:
+The provider ships only placeholders for these directories. Yii2 writes caches, logs, the SQLite database, and compiled
+assets into them at runtime:
 
 ```bash
 chmod -R u+w runtime/ public/assets/
@@ -96,15 +96,15 @@ chmod -R u+w runtime/ public/assets/
 
 ## 4. Run the migrations
 
-`app-base` ships two migrations: `CreateUserTable` and `CreateAdminUser` (seeds the
-default admin account from `config/params.php`).
+`app-base` ships two migrations: `CreateUserTable` and `CreateAdminUser` (seeds the default admin account from
+`config/params.php`).
 
 ```bash
 ./yii migrate
 ```
 
-The database defaults to SQLite at `runtime/db.sqlite`. Change `config/db.php` if you
-need MySQL, PostgreSQL, or another driver ; see [configuration.md](configuration.md).
+The database defaults to SQLite at `runtime/db.sqlite`. Change `config/db.php` if you need MySQL, PostgreSQL, or another
+driver ; see [configuration.md](configuration.md).
 
 ## 5. Start the dev server
 
@@ -112,9 +112,9 @@ need MySQL, PostgreSQL, or another driver ; see [configuration.md](configuration
 php -S localhost:8080 -t public public/router.php
 ```
 
-Open `http://localhost:8080`. The frontend overlay renders the layout; `app-base`
-handles `site/*` and `user/*` actions. Log in with the seeded admin credentials from
-`config/params.php` (defaults: username `admin`, password `admin`).
+Open `http://localhost:8080`. The frontend overlay renders the layout; `app-base` handles `site/*` and `user/*` actions.
+
+Log in with the seeded admin credentials from `config/params.php` (defaults: username `admin`, password `admin`).
 
 ## Next steps
 

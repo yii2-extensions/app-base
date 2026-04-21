@@ -1,7 +1,6 @@
 # Testing guide
 
-`app-base` ships a Codeception suite exercising every controller, model, form, and
-migration it contributes.
+`app-base` ships a Codeception suite exercising every controller, model, form, and migration it contributes.
 
 ## Quick run
 
@@ -23,7 +22,7 @@ vendor/bin/codecept run unit tests/unit/models/LoginFormTest.php
 
 ## Suite layout
 
-```
+```text
 tests/
 ├── _bootstrap.php              # runs migrations on the test DB once, before the suite
 ├── _phpstan_bootstrap.php      # PHPStan-only bootstrap
@@ -65,26 +64,24 @@ tests/
 
 ## Test database
 
-`tests/_bootstrap.php` boots a temporary Yii console application, wires the
-`MigrateController` against `config/test_db.php`, and runs every migration once
-before the first test executes. The connection is SQLite at
+`tests/_bootstrap.php` boots a temporary Yii console application, wires the `MigrateController` against
+`config/test_db.php`, and runs every migration once before the first test executes. The connection is SQLite at
 `tests/support/data/test.sqlite`.
 
-The migration is not reset between tests; fixtures are rolled back via the
-`Yii2` Codeception module rather than by re-migrating.
+The migration is not reset between tests; fixtures are rolled back via the `Yii2` Codeception module rather than by
+re-migrating.
 
 ## Mail capture
 
-Outgoing mail in tests is routed through `app\tests\support\MailerBootstrap`, which
-configures `yii\symfonymailer\Mailer` with `useFileTransport: true`. Tests assert on
-the produced files in `runtime/mail/` via the Codeception `Filesystem` module.
+Outgoing mail in tests is routed through `app\tests\support\MailerBootstrap`, which configures `yii\symfonymailer\Mailer`
+with `useFileTransport: true`. Tests assert on the produced files in `runtime/mail/` via the Codeception `Filesystem`
+module.
 
 ## Turnstile
 
 `ContactFormValidateTurnstileTest` exercises the Cloudflare Turnstile integration.
-`config/test.php` sets `turnstile.secretKey` to the empty string so the full validator
-is bypassed in the rest of the suite; the dedicated test reinstates the key and
-stubs the HTTP response.
+`config/test.php` sets `turnstile.secretKey` to the empty string so the full validator is bypassed in the rest of the
+suite; the dedicated test reinstates the key and stubs the HTTP response.
 
 ## Coverage
 
@@ -97,32 +94,26 @@ coverage:
         - /src/*
 ```
 
-Reports are written under `tests/support/output/coverage/` (HTML) and
-`tests/support/output/coverage.txt` (text).
+Reports are written under `tests/support/output/coverage/` (HTML) and `tests/support/output/coverage.txt` (text).
 
 ### Why coverage is not 100 %
 
-Controllers that end in `render(...)` cannot be fully exercised by `app-base` alone
-; the views in `resources/views/` are designed to be replaced by a
-[frontend overlay](frontend-overlays.md) that ships the real layout, widgets, and
-asset bundle. Running the suite against `app-base` in isolation leaves those render
-paths uncovered.
+Controllers that end in `render(...)` cannot be fully exercised by `app-base` alone; the views in `resources/views/` are
+designed to be replaced by a [frontend overlay](frontend-overlays.md) that ships the real layout, widgets, and asset
+bundle. Running the suite against `app-base` in isolation leaves those render paths uncovered.
 
-End-to-end coverage of `app-base`'s controllers and views is the overlay's
-responsibility. Each overlay ships its own Codeception suite that instantiates the
-full stack; those suites report 100 % for the rendered paths. For example,
-[`yii2-extensions/app-jquery`][app-jquery] reports 100 % once both packages run
-together.
+End-to-end coverage of `app-base`'s controllers and views is the overlay's responsibility. Each overlay ships its own
+Codeception suite that instantiates the full stack; those suites report 100 % for the rendered paths. For example,
+[`yii2-extensions/app-jquery`][app-jquery] reports 100 % once both packages run together.
 
-Treat each provider's coverage as a **slice**; the union across `app-base` plus the
-chosen overlay is what represents a real consumer app.
+Treat each provider's coverage as a **slice**; the union across `app-base` plus the chosen overlay is what represents a
+real consumer app.
 
 ## Static analysis
 
-PHPStan runs at `level: max` with strict advanced checks (`checkImplicitMixed`,
-`checkBenevolentUnionTypes`, `checkUninitializedProperties`, ...) and the bleeding
-edge ruleset. Configuration lives in `phpstan.neon`; the Yii2 extension is configured
-through `tests/support/phpstan-config.php`.
+PHPStan runs at `level: max` with strict advanced checks (`checkImplicitMixed`, `checkBenevolentUnionTypes`,
+`checkUninitializedProperties`, ...) and the bleeding edge ruleset. Configuration lives in `phpstan.neon`; the Yii2
+extension is configured through `tests/support/phpstan-config.php`.
 
 ## Next steps
 
