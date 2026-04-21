@@ -31,27 +31,24 @@ final class UserAccessCest
 
     public function authenticatedUserCannotAccessLogin(AcceptanceTester $I): void
     {
-        $user = User::findByUsername('admin');
+        $this->loginAs($I, 'admin');
 
-        $I->amLoggedInAs($user);
         $I->amOnRoute('user/login');
         $I->seeResponseCodeIs(403);
     }
 
     public function authenticatedUserCannotAccessSignup(AcceptanceTester $I): void
     {
-        $user = User::findByUsername('admin');
+        $this->loginAs($I, 'admin');
 
-        $I->amLoggedInAs($user);
         $I->amOnRoute('user/signup');
         $I->seeResponseCodeIs(403);
     }
 
     public function getVerbIsRejectedOnLogout(AcceptanceTester $I): void
     {
-        $user = User::findByUsername('admin');
+        $this->loginAs($I, 'admin');
 
-        $I->amLoggedInAs($user);
         $I->amOnRoute('user/logout');
         $I->seeResponseCodeIs(405);
     }
@@ -60,14 +57,31 @@ final class UserAccessCest
     {
         $I->amOnRoute('user/index');
         $I->seeInCurrentUrl('user/login');
+        $I->seeResponseCodeIs(200);
     }
 
     public function nonAdminGetsForbiddenOnUserIndex(AcceptanceTester $I): void
     {
-        $user = User::findByUsername('okirlin');
+        $this->loginAs($I, 'okirlin');
 
-        $I->amLoggedInAs($user);
         $I->amOnRoute('user/index');
         $I->seeResponseCodeIs(403);
+    }
+
+    /**
+     * Resolves a fixture user by username, fails fast if missing, and logs them in.
+     *
+     * Centralizes the `null`-guard so a missing or renamed fixture row surfaces as a clear test failure instead of a
+     * confusing `amLoggedInAs(null)` downstream error.
+     */
+    private function loginAs(AcceptanceTester $I, string $username): void
+    {
+        $user = User::findByUsername($username);
+
+        $I->assertNotNull(
+            $user,
+            "Expected fixture user '{$username}' to exist.",
+        );
+        $I->amLoggedInAs($user);
     }
 }

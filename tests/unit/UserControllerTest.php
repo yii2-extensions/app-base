@@ -467,6 +467,14 @@ final class UserControllerTest extends \Codeception\Test\Unit
             $response,
             "Expected 'actionResetPassword' to redirect with error flash when user save fails.",
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when user save fails without validation errors.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when user save fails.",
+        );
     }
 
     public function testActionResetPasswordPostSuccess(): void
@@ -535,6 +543,14 @@ final class UserControllerTest extends \Codeception\Test\Unit
             $response,
             "Expected 'actionResetPassword' to return Response when save throws instead of propagating exception.",
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when save throws and the exception is caught.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when save throws.",
+        );
     }
 
     public function testActionResetPasswordPostValidationErrors(): void
@@ -564,6 +580,14 @@ final class UserControllerTest extends \Codeception\Test\Unit
         self::assertNotEmpty(
             $response,
             "Expected 'actionResetPassword' to redirect with errors flash on validation failure.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected 'errors' flash to be set when the submitted password fails validation.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when validation fails.",
         );
     }
 

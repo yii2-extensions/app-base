@@ -270,6 +270,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         Yii::$app->request->setBodyParams([]);
         Yii::$app->controller = null;
         Yii::$app->errorHandler->exception = null;
+        Yii::$app->session->removeAllFlashes();
 
         unset(
             $_SERVER['REQUEST_URI'],
