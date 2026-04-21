@@ -41,7 +41,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-22.0": "22.0.x-dev"
+            "dev-main": "0.1.x-dev"
         },
         "scaffold": {
             "manifest": "scaffold.json"
