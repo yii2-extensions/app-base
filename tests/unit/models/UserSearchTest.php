@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\tests\unit\models;
 
-use app\models\UserSearch;
+use app\models\{User, UserSearch};
 use app\tests\support\fixtures\UserFixture;
 use yii\data\ActiveDataProvider;
 
@@ -52,7 +52,7 @@ final class UserSearchTest extends \Codeception\Test\Unit
             'Failed asserting that search method returns an instance of ActiveDataProvider.',
         );
 
-        verify($dataProvider->getCount())
+        verify($dataProvider->getTotalCount())
             ->greaterThan(0);
     }
 
@@ -68,7 +68,7 @@ final class UserSearchTest extends \Codeception\Test\Unit
             'Failed asserting that search method returns an instance of ActiveDataProvider.',
         );
 
-        verify($dataProvider->getCount())
+        verify($dataProvider->getTotalCount())
             ->equals(0);
     }
 
@@ -84,7 +84,30 @@ final class UserSearchTest extends \Codeception\Test\Unit
             'Failed asserting that search method returns an instance of ActiveDataProvider.',
         );
 
-        verify($dataProvider->getCount())
-            ->equals(1);
+        $models = $dataProvider->getModels();
+
+        self::assertCount(
+            1,
+            $models,
+            "Failed asserting that the username filter returns exactly one record for 'okirlin'.",
+        );
+        self::assertContainsOnlyInstancesOf(
+            User::class,
+            $models,
+            'Failed asserting that all returned models are instances of User.',
+        );
+
+        $first = reset($models);
+
+        self::assertInstanceOf(
+            User::class,
+            $first,
+            'Failed asserting that the first returned model is an instance of User.',
+        );
+        self::assertSame(
+            'okirlin',
+            $first->username,
+            "Failed asserting that the matched record is the 'okirlin' user (LIKE filter could match siblings).",
+        );
     }
 }
