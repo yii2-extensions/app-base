@@ -21,6 +21,10 @@ $this->title = 'Users';
         'username',
         'email',
         'status',
-        'created_at:datetime',
+        [
+            'attribute' => 'created_at',
+            'format' => 'datetime',
+            'filter' => false,
+        ],
     ],
 ]) ?>

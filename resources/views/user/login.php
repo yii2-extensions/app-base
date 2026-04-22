@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use yii\helpers\Html;
+use yii\helpers\{Html, Url};
 
 /**
  * @var \app\models\LoginForm $model Login form model.
@@ -28,8 +28,8 @@ $this->title = 'Login';
 </p>
 <?= Html::endForm() ?>
 <p>
-    <a href="<?= Yii::$app->urlManager->createUrl(['user/request-password-reset']) ?>">Forgot your password?</a>
+    <a href="<?= Url::to(['user/request-password-reset']) ?>">Forgot your password?</a>
 </p>
 <p>
-    <a href="<?= Yii::$app->urlManager->createUrl(['user/resend-verification-email']) ?>">Resend verification email</a>
+    <a href="<?= Url::to(['user/resend-verification-email']) ?>">Resend verification email</a>
 </p>
