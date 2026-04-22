@@ -92,23 +92,55 @@ overlay last.
 
 An overlay provider is responsible for:
 
-| Path                        | Contents                                               |
-| --------------------------- | ------------------------------------------------------ |
-| `resources/views/layouts/`  | The real layout (`main.php`) and any partials.         |
-| `resources/views/site/`     | Stylized homepage, contact, about, and error pages.    |
-| `resources/views/user/`     | Login, signup, password-reset, and email-verify pages. |
-| `src/assets/AppAsset.php`   | Asset bundle registering the overlay's CSS/JS.         |
-| `src/widgets/`              | Layout widgets (`Alert`, navbar builders, etc.).       |
-| `public/css/`, `public/js/` | Compiled styles and scripts.                           |
+| Path                                                       | Contents                                                                                                                     |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `resources/views/layouts/`                                 | The real layout (`main.php`) and any partials.                                                                               |
+| `resources/views/site/`                                    | Stylized homepage, contact, about, and error pages (PHP-view overlays only).                                                 |
+| `resources/views/user/`                                    | Login, signup, password-reset, and email-verify pages (PHP-view overlays only).                                              |
+| `src/controllers/SiteController.php`, `UserController.php` | Concrete subclasses of `Base\AbstractSiteController` / `Base\AbstractUserController` that implement the `render*()` methods. |
+| `src/assets/AppAsset.php`                                  | Asset bundle registering the overlay's CSS/JS.                                                                               |
+| `src/widgets/`                                             | Layout widgets (`Alert`, navbar builders, etc.).                                                                             |
+| `public/css/`, `public/js/`                                | Compiled styles and scripts.                                                                                                 |
+| `resources/js/`, `package.json`, `vite.config.*`           | SPA pipeline (React/Vue/Inertia overlays only).                                                                              |
 
 What an overlay must **not** touch:
 
-- `src/controllers/`, `src/models/`, `src/migrations/`, `src/commands/` (owned by `app-base`).
+- `src/controllers/Base/` ; the abstract bases own all business logic, access rules, and HTTP verb constraints. Subclass them, do not replace them.
+- `src/models/`, `src/migrations/`, `src/commands/` (owned by `app-base`).
 - `config/` (owned by `app-base`).
 - `rbac/` (owned by `app-base`).
 - `resources/mail/` (owned by `app-base`).
 - Server configuration (`.htaccess`, `nginx.conf`, `Caddyfile`) ; those live in
   dedicated `yii2-extensions/server-*` providers.
+
+## Rendering strategy: the `render*()` port
+
+`app-base` controllers split responsibilities cleanly:
+
+- **Business logic** (`actionLogin`, `actionContact`, etc.) lives in `Base\AbstractSiteController` and `Base\AbstractUserController`. These methods load forms, validate, set flash messages, redirect, and ultimately call a `render*()` method when they need to draw a screen.
+- **Rendering** (`renderLogin`, `renderContact`, etc.) is abstract. Each overlay supplies its own implementation.
+
+The default PHP-view implementation ships in `app-base/src/controllers/SiteController.php` and `UserController.php`. A jQuery overlay can keep using `$this->render(...)`. An Inertia (React/Vue) overlay overrides each `render*()` to return `Inertia::render(...)` instead:
+
+```php
+namespace app\controllers;
+
+use app\controllers\Base\AbstractUserController;
+use app\models\LoginForm;
+use yii2\extensions\inertia\Inertia;
+use yii\web\Response;
+
+final class UserController extends AbstractUserController
+{
+    protected function renderLogin(LoginForm $model): Response
+    {
+        return Inertia::render('User/Login', ['model' => $model->attributes]);
+    }
+    // ... other render*() methods ...
+}
+```
+
+Because the concrete `SiteController.php` and `UserController.php` are scaffolded under `replace` mode, an overlay placed **after** `app-base` in `allowed-packages` overwrites them automatically.
 
 ## Authoring a new overlay
 
