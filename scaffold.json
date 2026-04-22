@@ -1,0 +1,18 @@
+{
+    "copy": [
+        "src",
+        "config",
+        "rbac",
+        "resources",
+        "public",
+        "yii",
+        "runtime/.gitignore"
+    ],
+    "modes": {
+        "config/*.php": "preserve",
+        "rbac/*.php": "preserve",
+        "public/assets/.gitkeep": "preserve",
+        "public/images/**": "preserve",
+        "runtime/.gitignore": "preserve"
+    }
+}

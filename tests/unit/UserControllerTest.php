@@ -1,0 +1,890 @@
+<?php
+
+declare(strict_types=1);
+
+namespace app\tests\unit;
+
+use app\controllers\UserController;
+use app\models\User;
+use app\tests\support\fixtures\UserFixture;
+use RuntimeException;
+use Yii;
+use yii\base\{Event, ModelEvent};
+use yii\db\BaseActiveRecord;
+use yii\mail\{BaseMailer, MailEvent};
+use yii\web\BadRequestHttpException;
+
+/**
+ * Unit tests for {@see UserController} all actions.
+ *
+ * @author Wilmer Arambula <terabytesoftw@gmail.com>
+ * @since 0.1
+ */
+final class UserControllerTest extends \Codeception\Test\Unit
+{
+    /**
+     * @return array{user: array{class: string, dataFile: string}}
+     */
+    public function _fixtures(): array
+    {
+        return [
+            'user' => [
+                'class' => UserFixture::class,
+                // @phpstan-ignore binaryOp.invalid
+                'dataFile' => codecept_data_dir() . 'user.php',
+            ],
+        ];
+    }
+
+    public function testActionConfirmEmailFailure(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/confirm-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findOne(['username' => 'test.fail', 'status' => User::STATUS_INACTIVE]);
+
+        self::assertInstanceOf(
+            User::class,
+            $user,
+            "Fixture user 'test.fail' must exist.",
+        );
+
+        $token = $user->verification_token;
+
+        self::assertNotNull(
+            $token,
+            "Fixture user 'test.fail' must have a verification token.",
+        );
+
+        $handler = static function (ModelEvent $event): void {
+            $event->isValid = false;
+        };
+
+        Event::on(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+
+        try {
+            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+            Yii::$app->controller = $controller;
+
+            $response = $controller->actionConfirmEmail($token);
+        } finally {
+            Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+        }
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionConfirmEmail' to redirect home with error flash when verification fails.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when 'actionConfirmEmail' save fails.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when 'actionConfirmEmail' save fails.",
+        );
+    }
+
+    public function testActionConfirmEmailSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/confirm-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findOne(['username' => 'test.test', 'status' => User::STATUS_INACTIVE]);
+
+        self::assertInstanceOf(
+            User::class,
+            $user,
+            "Fixture user 'test.test' must exist.",
+        );
+
+        $token = $user->verification_token;
+
+        self::assertNotNull(
+            $token,
+            "Fixture user 'test.test' must have a verification token.",
+        );
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionConfirmEmail($token);
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionConfirmEmail' to redirect home on successful email verification.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash to be set when 'actionConfirmEmail' verifies the user.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash NOT to be set on successful verification.",
+        );
+    }
+
+    public function testActionConfirmEmailThrowsOnInvalidToken(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/confirm-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Wrong verify email token.');
+
+        $controller->actionConfirmEmail('invalid-token');
+    }
+
+    public function testActionIndexReturnsResponse(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionIndex();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionIndex' to return an instance of Response.",
+        );
+    }
+
+    public function testActionLoginGet(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/login';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionLogin();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionLogin' to return an inertia Response for GET request.",
+        );
+    }
+
+    public function testActionLoginPostSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/login';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'LoginForm' => [
+                'username' => 'admin',
+                'password' => 'password_0',
+            ],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionLogin();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionLogin' to redirect home on successful login.",
+        );
+    }
+
+    public function testActionLoginPostValidationErrors(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/login';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'LoginForm' => [
+                'username' => '',
+                'password' => '',
+            ],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionLogin();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionLogin' to redirect with errors flash on validation failure.",
+        );
+    }
+
+    public function testActionLogout(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/logout';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionLogout();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionLogout' to redirect home.",
+        );
+    }
+
+    public function testActionRequestPasswordResetGet(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/request-password-reset';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionRequestPasswordReset();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionRequestPasswordReset' to return an inertia Response for GET request.",
+        );
+    }
+
+    public function testActionRequestPasswordResetPostInvalidEmailFormat(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/request-password-reset';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'PasswordResetRequestForm' => ['email' => 'not-an-email'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionRequestPasswordReset();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionRequestPasswordReset' to redirect with errors flash on invalid email format.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected 'errors' flash to be set on invalid email format.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected no 'success' flash on invalid email format.",
+        );
+    }
+
+    public function testActionRequestPasswordResetPostMailerFailure(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/request-password-reset';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'PasswordResetRequestForm' => ['email' => 'okirlin@example.com'],
+        ]);
+
+        $handler = static function (MailEvent $event): void {
+            $event->isValid = false;
+        };
+
+        Yii::$app->mailer->on(BaseMailer::EVENT_BEFORE_SEND, $handler);
+
+        try {
+            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+            Yii::$app->controller = $controller;
+            $response = $controller->actionRequestPasswordReset();
+        } finally {
+            Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
+        }
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionRequestPasswordReset' to redirect home with generic success flash even when mailer fails.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash to be set even when mailer fails (enumeration-safe).",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected no 'errors' flash when mailer fails (enumeration-safe).",
+        );
+    }
+
+    public function testActionRequestPasswordResetPostSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/request-password-reset';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'PasswordResetRequestForm' => ['email' => 'okirlin@example.com'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionRequestPasswordReset();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionRequestPasswordReset' to redirect home on successful email send.",
+        );
+    }
+
+    public function testActionRequestPasswordResetPostUnknownEmailReturnsGenericSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/request-password-reset';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'PasswordResetRequestForm' => ['email' => 'nonexistent@example.com'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionRequestPasswordReset();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionRequestPasswordReset' to redirect home with generic success flash for an unknown email.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash to be set for an unknown email (enumeration-safe).",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected no 'errors' flash for an unknown email (enumeration-safe).",
+        );
+    }
+
+    public function testActionResendVerificationEmailGet(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/resend-verification-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionResendVerificationEmail();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResendVerificationEmail' to return an inertia Response for GET request.",
+        );
+    }
+
+    public function testActionResendVerificationEmailPostActiveUserReturnsGenericSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/resend-verification-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'ResendVerificationEmailForm' => ['email' => 'admin@example.com'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionResendVerificationEmail();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResendVerificationEmail' to redirect home with generic success flash for an already-active account.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash to be set for an active user (enumeration-safe).",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected no 'errors' flash for an active user (enumeration-safe).",
+        );
+    }
+
+    public function testActionResendVerificationEmailPostInvalidEmailFormat(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/resend-verification-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'ResendVerificationEmailForm' => ['email' => 'not-an-email'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionResendVerificationEmail();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResendVerificationEmail' to redirect with errors flash on invalid email format.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected 'errors' flash to be set on invalid email format.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected no 'success' flash on invalid email format.",
+        );
+    }
+
+    public function testActionResendVerificationEmailPostMailerFailure(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/resend-verification-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'ResendVerificationEmailForm' => ['email' => 'test.test@example.com'],
+        ]);
+
+        $handler = static function (MailEvent $event): void {
+            $event->isValid = false;
+        };
+
+        Yii::$app->mailer->on(BaseMailer::EVENT_BEFORE_SEND, $handler);
+
+        try {
+            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+            Yii::$app->controller = $controller;
+            $response = $controller->actionResendVerificationEmail();
+        } finally {
+            Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
+        }
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResendVerificationEmail' to redirect home with generic success flash even when mailer fails.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash to be set even when mailer fails (enumeration-safe).",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected no 'errors' flash when mailer fails (enumeration-safe).",
+        );
+    }
+
+    public function testActionResendVerificationEmailPostSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/resend-verification-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'ResendVerificationEmailForm' => ['email' => 'test.test@example.com'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionResendVerificationEmail();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResendVerificationEmail' to redirect home on successful email send.",
+        );
+    }
+
+    public function testActionResetPasswordGet(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/reset-password';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $user = User::findByUsername('okirlin');
+
+        self::assertInstanceOf(User::class, $user, "Fixture user 'okirlin' must exist.");
+
+        $token = $user->password_reset_token;
+
+        self::assertNotNull($token, "Fixture user 'okirlin' must have a password reset token.");
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionResetPassword($token);
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResetPassword' to return an inertia Response for GET request with valid token.",
+        );
+    }
+
+    public function testActionResetPasswordPostSaveFailure(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/reset-password';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findByUsername('okirlin');
+
+        self::assertInstanceOf(User::class, $user, "Fixture user 'okirlin' must exist.");
+
+        $token = $user->password_reset_token;
+
+        self::assertNotNull($token, "Fixture user 'okirlin' must have a password reset token.");
+
+        Yii::$app->request->setBodyParams([
+            'ResetPasswordForm' => ['password' => 'newpassword123'],
+        ]);
+
+        $handler = static function (ModelEvent $event): void {
+            $event->isValid = false;
+        };
+
+        Event::on(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+
+        try {
+            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+            Yii::$app->controller = $controller;
+            $response = $controller->actionResetPassword($token);
+        } finally {
+            Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+        }
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResetPassword' to redirect with error flash when user save fails.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when user save fails without validation errors.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when user save fails.",
+        );
+    }
+
+    public function testActionResetPasswordPostSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/reset-password';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findByUsername('okirlin');
+
+        self::assertInstanceOf(User::class, $user, "Fixture user 'okirlin' must exist.");
+
+        $token = $user->password_reset_token;
+
+        self::assertNotNull($token, "Fixture user 'okirlin' must have a password reset token.");
+
+        Yii::$app->request->setBodyParams([
+            'ResetPasswordForm' => ['password' => 'newpassword123'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionResetPassword($token);
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResetPassword' to redirect home on successful password reset.",
+        );
+    }
+
+    public function testActionResetPasswordPostThrowsDuringSave(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/reset-password';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findByUsername('okirlin');
+
+        self::assertInstanceOf(User::class, $user, "Fixture user 'okirlin' must exist.");
+
+        $token = $user->password_reset_token;
+
+        self::assertNotNull($token, "Fixture user 'okirlin' must have a password reset token.");
+
+        Yii::$app->request->setBodyParams([
+            'ResetPasswordForm' => ['password' => 'newpassword123'],
+        ]);
+
+        $handler = static function (): void {
+            throw new RuntimeException('Simulated DB failure during password save.');
+        };
+
+        Event::on(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+
+        try {
+            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+            Yii::$app->controller = $controller;
+            $response = $controller->actionResetPassword($token);
+        } finally {
+            Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
+        }
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResetPassword' to return Response when save throws instead of propagating exception.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('error'),
+            "Expected 'error' flash to be set when save throws and the exception is caught.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when save throws.",
+        );
+    }
+
+    public function testActionResetPasswordPostValidationErrors(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/reset-password';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $user = User::findByUsername('okirlin');
+
+        self::assertInstanceOf(User::class, $user, "Fixture user 'okirlin' must exist.");
+
+        $token = $user->password_reset_token;
+
+        self::assertNotNull($token, "Fixture user 'okirlin' must have a password reset token.");
+
+        // 'short' is 5 chars, below passwordMinLength of 8.
+        Yii::$app->request->setBodyParams([
+            'ResetPasswordForm' => ['password' => 'short'],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionResetPassword($token);
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionResetPassword' to redirect with errors flash on validation failure.",
+        );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('errors'),
+            "Expected 'errors' flash to be set when the submitted password fails validation.",
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('success'),
+            "Expected 'success' flash NOT to be set when validation fails.",
+        );
+    }
+
+    public function testActionResetPasswordThrowsOnInvalidToken(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/reset-password';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Wrong password reset token.');
+
+        $controller->actionResetPassword('invalid-token');
+    }
+
+    public function testActionSignupGet(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/signup';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionSignup();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionSignup' to return an inertia Response for GET request.",
+        );
+    }
+
+    public function testActionSignupPostMailerFailure(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/signup';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'SignupForm' => [
+                'username' => 'unit_mailer_fail_user',
+                'email' => 'unit.mailer.fail@example.com',
+                'password' => 'password123',
+            ],
+        ]);
+
+        $handler = static function (MailEvent $event): void {
+            $event->isValid = false;
+        };
+
+        Yii::$app->mailer->on(BaseMailer::EVENT_BEFORE_SEND, $handler);
+
+        try {
+            $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+            Yii::$app->controller = $controller;
+            $response = $controller->actionSignup();
+        } finally {
+            Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
+        }
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionSignup' to redirect with error flash when mailer fails.",
+        );
+    }
+
+    public function testActionSignupPostSuccess(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/signup';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'SignupForm' => [
+                'username' => 'unit_test_user',
+                'email' => 'unit.test.user@example.com',
+                'password' => 'password123',
+            ],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionSignup();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionSignup' to redirect home on successful signup.",
+        );
+    }
+
+    public function testActionSignupPostValidationErrors(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/signup';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams([
+            'SignupForm' => [
+                'username' => '',
+                'email' => '',
+                'password' => '',
+            ],
+        ]);
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionSignup();
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionSignup' to redirect with errors flash on validation failure.",
+        );
+    }
+
+    public function testActionVerifyEmailRendersInterstitial(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/verify-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $user = User::findOne(['username' => 'test.test', 'status' => User::STATUS_INACTIVE]);
+
+        self::assertInstanceOf(User::class, $user, "Fixture user 'test.test' must exist.");
+
+        $token = $user->verification_token;
+
+        self::assertNotNull($token, "Fixture user 'test.test' must have a verification token.");
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+        $response = $controller->actionVerifyEmail($token);
+
+        self::assertNotEmpty(
+            $response,
+            "Expected 'actionVerifyEmail' to render the interstitial confirmation view.",
+        );
+        self::assertStringContainsString(
+            'user/confirm-email',
+            $response,
+            "Expected the interstitial form to POST to 'user/confirm-email'.",
+        );
+
+        $reloaded = User::findOne(['username' => 'test.test']);
+
+        self::assertInstanceOf(User::class, $reloaded);
+        self::assertSame(
+            User::STATUS_INACTIVE,
+            $reloaded->status,
+            "Expected GET on 'verify-email' NOT to consume the token or activate the user.",
+        );
+    }
+
+    public function testActionVerifyEmailThrowsOnInvalidToken(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/verify-email';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Wrong verify email token.');
+
+        $controller->actionVerifyEmail('invalid-token');
+    }
+
+    protected function tearDown(): void
+    {
+        Yii::$app->request->setBodyParams([]);
+        Yii::$app->controller = null;
+        Yii::$app->errorHandler->exception = null;
+        Yii::$app->session->removeAllFlashes();
+        Yii::$app->user->logout(false);
+
+        unset(
+            $_SERVER['REQUEST_URI'],
+            $_SERVER['SERVER_NAME'],
+            $_SERVER['REQUEST_METHOD'],
+        );
+
+        parent::tearDown();
+    }
+}

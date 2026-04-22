@@ -2,56 +2,56 @@
 <svg viewBox="0 0 620 620" width="100%" height="580" xmlns="http://www.w3.org/2000/svg">
     <style>
         text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .box-bg { fill: #e6f4ea; stroke: #a7cdb3; stroke-width: 1; }
+        .box-bg { fill: #e9f7ef; stroke: #b7e4c7; stroke-width: 1; }
         .title { font-weight: 700; font-size: 14px; fill: #1a202c; }
         .content { font-size: 11px; fill: #4a5568; }
     </style>
 
     <g>
         <rect class="box-bg" x="16" y="16" width="588" height="84" rx="6"/>
-        <rect x="16" y="16" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="42">Best Practices</text>
-        <text class="content" x="32" y="66">PSR standards &#8226; Clean code &#8226; Documentation ready</text>
-        <text class="content" x="32" y="84">PER 3.0 + PSR-12 coding standards</text>
+        <rect x="16" y="16" width="4" height="84" fill="#42b883"/>
+        <text class="title" x="32" y="42">Console &amp; Web Entrypoints</text>
+        <text class="content" x="32" y="66">CLI &#8226; HelloController &#8226; index.php &#8226; index-test.php</text>
+        <text class="content" x="32" y="84">Built-in PHP server via router.php</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="116" width="588" height="84" rx="6"/>
-        <rect x="16" y="116" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="142">Easy Setup</text>
-        <text class="content" x="32" y="166">Quick start template &#8226; Configuration examples &#8226; Clear structure</text>
-        <text class="content" x="32" y="184">Ready-to-use project scaffolding</text>
+        <rect x="16" y="116" width="4" height="84" fill="#42b883"/>
+        <text class="title" x="32" y="142">Database Layer</text>
+        <text class="content" x="32" y="166">SQLite-ready db.php &#8226; CreateUserTable &#8226; CreateAdminUser</text>
+        <text class="content" x="32" y="184">safeUp() / safeDown() migrations &#8226; User ActiveRecord + Search</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="216" width="588" height="84" rx="6"/>
-        <rect x="16" y="216" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="242">GitHub Actions</text>
-        <text class="content" x="32" y="266">CI/CD workflows &#8226; Automated testing &#8226; Quality checks</text>
-        <text class="content" x="32" y="284">Super-Linter &#8226; PHPStan &#8226; ECS &#8226; Infection</text>
+        <rect x="16" y="216" width="4" height="84" fill="#42b883"/>
+        <text class="title" x="32" y="242">Quality Tooling</text>
+        <text class="content" x="32" y="266">PHPStan level max &#8226; Codeception 5.3 &#8226; PSR-12 / PER 3.0</text>
+        <text class="content" x="32" y="284">Mutation testing &#8226; composer-require-checker</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="316" width="588" height="84" rx="6"/>
-        <rect x="16" y="316" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="342">Quality Tools</text>
-        <text class="content" x="32" y="366">PHPStan Level Max &#8226; StyleCI &#8226; Super-Linter integration</text>
-        <text class="content" x="32" y="384">Mutation testing with 100% MSI requirement</text>
+        <rect x="16" y="316" width="4" height="84" fill="#42b883"/>
+        <text class="title" x="32" y="342">RBAC + Mail</text>
+        <text class="content" x="32" y="366">PhpManager items, rules, assignments &#8226; Symfony Mailer</text>
+        <text class="content" x="32" y="384">HTML + text layouts for verify and reset</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="416" width="588" height="84" rx="6"/>
-        <rect x="16" y="416" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="442">PHP 8.3+</text>
-        <text class="content" x="32" y="466">Modern PHP features &#8226; Type safety &#8226; Performance optimizations</text>
-        <text class="content" x="32" y="484">Multi-version CI matrix: 8.3, 8.4, 8.5</text>
+        <rect x="16" y="416" width="4" height="84" fill="#42b883"/>
+        <text class="title" x="32" y="442">Scaffold Provider</text>
+        <text class="content" x="32" y="466">Ships via yii2-extensions/scaffold &#8226; Declarative manifest</text>
+        <text class="content" x="32" y="484">Per-file preserve modes for config and rbac</text>
     </g>
 
     <g>
         <rect class="box-bg" x="16" y="516" width="588" height="84" rx="6"/>
-        <rect x="16" y="516" width="4" height="84" fill="#1f883d"/>
-        <text class="title" x="32" y="542">Testing Ready</text>
-        <text class="content" x="32" y="566">PHPUnit 11.5 &#8226; Mutation testing &#8226; Codecov integration</text>
-        <text class="content" x="32" y="584">Dependency checker &#8226; Rector automated refactoring</text>
+        <rect x="16" y="516" width="4" height="84" fill="#42b883"/>
+        <text class="title" x="32" y="542">User Authentication</text>
+        <text class="content" x="32" y="566">Login &#8226; Signup &#8226; Password reset &#8226; Email verification</text>
+        <text class="content" x="32" y="584">ActiveRecord User + 8 form models</text>
     </g>
 </svg>
