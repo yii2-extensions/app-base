@@ -31,7 +31,7 @@ class HelloController extends Controller
      */
     public function actionIndex(string $message = 'hello world'): int
     {
-        echo "{$message}\n";
+        $this->stdout("{$message}\n");
 
         return ExitCode::OK;
     }

@@ -35,6 +35,8 @@ class ResetPasswordForm extends Model
      */
     public function __construct(string $token, array $config = [])
     {
+        parent::__construct($config);
+
         $token = trim($token);
 
         if ($token === '') {
@@ -46,8 +48,6 @@ class ResetPasswordForm extends Model
         if ($this->user === null) {
             throw new InvalidArgumentException('Wrong password reset token.');
         }
-
-        parent::__construct($config);
     }
 
     /**

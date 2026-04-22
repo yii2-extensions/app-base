@@ -55,7 +55,20 @@ final class CreateUserTableTest extends \Codeception\Test\Unit
 
         $schema = $db->schema;
 
+        $migration = new M260330000000CreateUserTable(['db' => $db]);
+
+        // drop and recreate the table so the assertions actually exercise 'safeUp()'.
+        $migration->down();
         $schema->refresh();
+
+        verify($schema->getTableSchema('{{%user}}'))
+            ->null(
+                "Failed asserting that 'user' table is dropped before re-running 'safeUp'.",
+            );
+
+        $migration->up();
+        $schema->refresh();
+
         $tableSchema = $schema->getTableSchema('{{%user}}');
 
         self::assertNotNull(
