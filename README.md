@@ -37,13 +37,13 @@
 ## What is a scaffold provider?
 
 `app-base` is not a runtime library; there is no class to extend or service to register.
-It is a [`yii2-extensions/scaffold`][scaffold] **provider** ; a package that declares
-a set of files to copy into a consumer project.
 
-On `composer install`, the scaffold plugin reads `scaffold.json` from this package and
-copies `src/`, `config/`, `rbac/`, `resources/`, `public/` and `yii` into the consumer
-root. Files that are marked as `preserve` (configs, RBAC, runtime assets) are only
-written once, so your edits survive subsequent installs.
+It is a [`yii2-extensions/scaffold`][scaffold] **provider** ; a package that declares a set of files to copy into a
+consumer project.
+
+On `composer install`, the scaffold plugin reads `scaffold.json` from this package and copies `src/`, `config/`, `rbac/`,
+`resources/`, `public/` and `yii` into the consumer root. Files that are marked as `preserve` (configs, RBAC, runtime
+assets) are only written once, so your edits survive subsequent installs.
 
 See [docs/scaffold.md](docs/scaffold.md) for the detailed walkthrough.
 
@@ -115,9 +115,9 @@ Create a new directory for your app, drop in this `composer.json`, then run `com
 Then:
 
 ```bash
-composer install                                        # scaffold copies the tree in + autogenerates cookieValidationKey
-./yii migrate                                           # creates the user table + admin user
-php -S localhost:8080 -t public public/router.php       # start the dev server
+composer install                                    # scaffold copies the tree in + autogenerates cookieValidationKey
+./yii migrate                                       # creates the user table + admin user
+php -S localhost:8080 -t public public/router.php   # start the dev server
 ```
 
 Full walkthrough: [docs/installation.md](docs/installation.md).
@@ -144,16 +144,14 @@ your-app/
 └── scaffold.json          Provider manifest (copy paths, per-file modes)
 ```
 
-`[preserve]` = scaffold writes the file once and never overwrites it on subsequent
-`composer install` runs. All other paths are refreshed from the provider stubs
-unless you explicitly `scaffold eject` them.
+`[preserve]` = scaffold writes the file once and never overwrites it on subsequent `composer install` runs. All other
+paths are refreshed from the provider stubs unless you explicitly `scaffold eject` them.
 
 ## Not included (by design)
 
-- CSS, JS, widgets, and asset bundles ; owned by frontend overlays such as
-  [`yii2-extensions/app-jquery`][app-jquery].
-- Server configuration (`.htaccess`, `nginx.conf`, `Caddyfile`, `.rr.yaml`) ;
-  lives in dedicated `yii2-extensions/server-*` providers.
+- CSS, JS, widgets, and asset bundles ; owned by frontend overlays such as [`yii2-extensions/app-jquery`][app-jquery].
+- Server configuration (`.htaccess`, `nginx.conf`, `Caddyfile`, `.rr.yaml`); lives in dedicated
+  `yii2-extensions/server-*` providers.
 
 ## Documentation
 
