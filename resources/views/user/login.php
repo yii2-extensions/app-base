@@ -13,11 +13,11 @@ $this->title = 'Login';
 <h1><?= Html::encode($this->title) ?></h1>
 <?= Html::beginForm('', 'post') ?>
 <p>
-    <?= Html::label('Username', 'loginform-username') ?>
+    <?= Html::activeLabel($model, 'username', ['label' => 'Username']) ?>
     <?= Html::activeTextInput($model, 'username') ?>
 </p>
 <p>
-    <?= Html::label('Password', 'loginform-password') ?>
+    <?= Html::activeLabel($model, 'password', ['label' => 'Password']) ?>
     <?= Html::activePasswordInput($model, 'password') ?>
 </p>
 <p>

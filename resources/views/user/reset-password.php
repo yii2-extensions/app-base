@@ -14,7 +14,7 @@ $this->title = 'Reset password';
 <h1><?= Html::encode($this->title) ?></h1>
 <?= Html::beginForm(['user/reset-password', 'token' => $token], 'post') ?>
 <p>
-    <?= Html::label('New password', 'resetpasswordform-password') ?>
+    <?= Html::activeLabel($model, 'password', ['label' => 'New password']) ?>
     <?= Html::activePasswordInput($model, 'password') ?>
 </p>
 <p>

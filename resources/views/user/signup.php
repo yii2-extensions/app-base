@@ -13,15 +13,15 @@ $this->title = 'Sign up';
 <h1><?= Html::encode($this->title) ?></h1>
 <?= Html::beginForm('', 'post') ?>
 <p>
-    <?= Html::label('Username', 'signupform-username') ?>
+    <?= Html::activeLabel($model, 'username', ['label' => 'Username']) ?>
     <?= Html::activeTextInput($model, 'username') ?>
 </p>
 <p>
-    <?= Html::label('Email', 'signupform-email') ?>
+    <?= Html::activeLabel($model, 'email', ['label' => 'Email']) ?>
     <?= Html::activeInput('email', $model, 'email') ?>
 </p>
 <p>
-    <?= Html::label('Password', 'signupform-password') ?>
+    <?= Html::activeLabel($model, 'password', ['label' => 'Password']) ?>
     <?= Html::activePasswordInput($model, 'password') ?>
 </p>
 <p>

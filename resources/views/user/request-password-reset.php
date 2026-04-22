@@ -13,7 +13,7 @@ $this->title = 'Request password reset';
 <h1><?= Html::encode($this->title) ?></h1>
 <?= Html::beginForm('', 'post') ?>
 <p>
-    <?= Html::label('Email', 'passwordresetrequestform-email') ?>
+    <?= Html::activeLabel($model, 'email', ['label' => 'Email']) ?>
     <?= Html::activeInput('email', $model, 'email') ?>
 </p>
 <p>
