@@ -127,7 +127,7 @@ namespace app\controllers;
 
 use app\controllers\Base\AbstractUserController;
 use app\models\LoginForm;
-use yii2\extensions\inertia\Inertia;
+use yii\inertia\Inertia;
 use yii\web\Response;
 
 final class UserController extends AbstractUserController

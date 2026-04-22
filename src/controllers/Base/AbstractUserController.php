@@ -425,6 +425,7 @@ abstract class AbstractUserController extends Controller
                     'confirm-email' => ['post'],
                     'index' => ['get'],
                     'logout' => ['post'],
+                    'verify-email' => ['get'],
                 ],
             ],
         ];
