@@ -839,6 +839,10 @@ final class UserControllerTest extends \Codeception\Test\Unit
             $response,
             "Expected 'actionVerifyEmail' to render the interstitial confirmation view.",
         );
+        self::assertIsString(
+            $response,
+            "Expected 'actionVerifyEmail' to return the rendered interstitial as a string.",
+        );
         self::assertStringContainsString(
             'user/confirm-email',
             $response,
