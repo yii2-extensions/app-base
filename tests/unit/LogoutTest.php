@@ -44,21 +44,17 @@ final class LogoutTest extends \Codeception\Test\Unit
 
         Yii::$app->controller = $controller;
 
-        self::assertNotNull(
-            $user,
-            "Failed asserting that the user identity with ID '1' exists.",
-        );
         self::assertInstanceOf(
             IdentityInterface::class,
             $user,
-            "Failed asserting that the identity is an instance of 'Identity' class.",
+            "Fixture user with ID '1' must exist.",
         );
 
         Yii::$app->user->login($user);
 
         self::assertFalse(
             Yii::$app->user->isGuest,
-            'Failed asserting that user is logged in before logout.',
+            'User is logged in before logout.',
         );
 
         $response = $controller->actionLogout();
@@ -66,11 +62,11 @@ final class LogoutTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             Response::class,
             $response,
-            'Failed asserting that logout returns a Response instance.',
+            'Logout returns a Response instance.',
         );
         self::assertTrue(
             Yii::$app->user->isGuest,
-            'Failed asserting that user is a guest after logout.',
+            'User is a guest after logout.',
         );
     }
 }

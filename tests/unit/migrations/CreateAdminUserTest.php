@@ -26,20 +26,17 @@ final class CreateAdminUserTest extends \Codeception\Test\Unit
 
         $db->createCommand()->delete('{{%user}}', ['username' => $expectedUsername])->execute();
         $migration->up();
+
         $admin = User::find()->where(['username' => $expectedUsername])->one();
 
         verify($admin)
-            ->notNull(
-                "Failed asserting that admin user exists after 'safeUp'.",
-            );
+            ->notNull("Admin user exists after 'safeUp'.");
 
         $migration->down();
         $admin = User::find()->where(['username' => $expectedUsername])->one();
 
         verify($admin)
-            ->null(
-                "Failed asserting that admin user is deleted after 'safeDown'.",
-            );
+            ->null("Admin user is deleted after 'safeDown'.");
     }
 
     public function testSafeUpCreatesAdminUser(): void
@@ -55,28 +52,26 @@ final class CreateAdminUserTest extends \Codeception\Test\Unit
         $migration = new M260403000000CreateAdminUser(['db' => $db]);
 
         $migration->up();
+
         $admin = User::find()->where(['username' => $expectedUsername])->one();
 
         self::assertInstanceOf(
             User::class,
             $admin,
-            'Failed asserting that admin user exists.',
+            'Admin user exists.',
         );
 
-        verify($admin->username)->equals($expectedUsername);
-        verify($admin->email)->equals($expectedEmail);
+        verify($admin->username)
+            ->equals($expectedUsername);
+        verify($admin->email)
+            ->equals($expectedEmail);
         verify($admin->status)
-            ->equals(
-                User::STATUS_ACTIVE,
-                "Failed asserting that 'status' is 'active'.",
-            );
+            ->equals(User::STATUS_ACTIVE, "Status is 'active'.");
 
         $expectedPassword = Yii::$app->params['admin.password'];
 
         verify(Yii::$app->security->validatePassword($expectedPassword, $admin->password_hash))
-            ->true(
-                'Failed asserting that admin password matches configured value.',
-            );
+            ->true('Admin password matches configured value.');
 
         // clean up for other tests.
         $migration->down();

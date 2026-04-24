@@ -33,15 +33,14 @@ final class ContactFormTest extends \Codeception\Test\Unit
             'turnstileToken' => 'test-token',
         ];
 
-        verify(
+        self::assertNotEmpty(
             $model->contact(
                 Yii::$app->mailer,
                 'admin@example.com',
                 'noreply@example.com',
                 'Example.com mailer',
             ),
-        )->notEmpty(
-            "Failed asserting that 'contact' email is sent successfully.",
+            'Contact email is sent successfully.',
         );
 
         // using Yii2 module actions to check email was sent.
@@ -55,42 +54,64 @@ final class ContactFormTest extends \Codeception\Test\Unit
         /** @var Message $emailMessage */
         $emailMessage = $this->tester->grabLastSentEmail();
 
-        verify($emailMessage)
-            ->instanceOf(
-                MessageInterface::class,
-                "Failed asserting that a 'contact' email was captured.",
-            );
-        verify($emailMessage->getTo())
-            ->arrayHasKey(
-                'admin@example.com',
-                'Failed asserting that email is sent to the admin address.',
-            );
-        verify($emailMessage->getFrom())
-            ->arrayHasKey(
-                'noreply@example.com',
-                "Failed asserting that email is sent from the 'noreply' address.",
-            );
-        verify($emailMessage->getReplyTo())
-            ->arrayHasKey(
-                'tester@example.com',
-                "Failed asserting that 'reply-to' is set to the contact email.",
-            );
-        verify($emailMessage->getSubject())
-            ->equals(
-                'very important letter subject',
-                "Failed asserting that email 'subject' matches the form input.",
-            );
+        self::assertInstanceOf(
+            MessageInterface::class,
+            $emailMessage,
+            'A contact email was captured.',
+        );
+
+        $to = $emailMessage->getTo();
+        $from = $emailMessage->getFrom();
+        $replyTo = $emailMessage->getReplyTo();
+
+        self::assertIsArray(
+            $to,
+            "Email 'To' must be an array of recipients.",
+        );
+        self::assertIsArray(
+            $from,
+            "Email 'From' must be an array of senders.",
+        );
+        self::assertIsArray(
+            $replyTo,
+            "Email 'Reply-To' must be an array of addresses.",
+        );
+        self::assertArrayHasKey(
+            'admin@example.com',
+            $to,
+            'Email is sent to the admin address.',
+        );
+        self::assertArrayHasKey(
+            'noreply@example.com',
+            $from,
+            "Email is sent from the 'noreply' address.",
+        );
+        self::assertArrayHasKey(
+            'tester@example.com',
+            $replyTo,
+            "'Reply-to' is set to the contact email.",
+        );
+        self::assertSame(
+            'very important letter subject',
+            $emailMessage->getSubject(),
+            "Email 'subject' matches the form input.",
+        );
+
         $textBody = $emailMessage->getSymfonyEmail()->getTextBody();
 
-        verify($textBody)
-            ->stringContainsString(
-                'body of current message',
-                "Failed asserting that email 'body' contains the form message.",
-            );
-        verify($textBody)
-            ->stringContainsString(
-                '(555) 123-4567',
-                "Failed asserting that email 'body' contains the phone number.",
-            );
+        self::assertIsString(
+            $textBody,
+            'Email text body must be a string.',
+        );
+        self::assertStringContainsString(
+            'body of current message',
+            $textBody,
+            "Email 'body' contains the form message.",
+        );
+        self::assertStringContainsString(
+            '(555) 123-4567',
+            $textBody,
+            "Email 'body' contains the phone number.",
+        );
     }
 }

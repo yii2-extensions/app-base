@@ -9,6 +9,9 @@ use app\tests\support\fixtures\UserFixture;
 use Yii;
 use yii\log\Logger;
 
+use function is_array;
+use function is_string;
+
 /**
  * Unit tests for {@see \app\models\LoginForm} model.
  *
@@ -41,38 +44,37 @@ final class LoginFormTest extends \Codeception\Test\Unit
         );
 
         $originalLogger = Yii::getLogger();
+
         $realLogger = new Logger();
 
         Yii::setLogger($realLogger);
 
         try {
-            verify($model->getUser())
-                ->null(
-                    "Failed asserting that 'getUser()' returns 'null' on the first call for a non-existent username.",
-                );
+            self::assertNull(
+                $model->getUser(),
+                "Return 'null' on the first call for a non-existent 'username'.",
+            );
 
             $countAfterFirst = $this->countDbQueries($realLogger);
 
-            verify($countAfterFirst)
-                ->greaterThan(
-                    0,
-                    "Failed asserting that the first 'getUser()' call actually issued a DB query; "
-                    . 'a count of 0 would pass the later equality check as a false positive.',
-                );
+            self::assertGreaterThan(
+                0,
+                $countAfterFirst,
+                "A count of '0' would pass the later equality check as a 'false' positive.",
+            );
 
-            verify($model->getUser())
-                ->null(
-                    "Failed asserting that 'getUser()' returns 'null' on the second call for a non-existent username.",
-                );
+            self::assertNull(
+                $model->getUser(),
+                "Return 'null' on the second call for a non-existent 'username'.",
+            );
 
             $countAfterSecond = $this->countDbQueries($realLogger);
 
-            verify($countAfterSecond)
-                ->equals(
-                    $countAfterFirst,
-                    "Failed asserting that the second 'getUser()' call issues no additional DB queries; "
-                    . "expected {$countAfterFirst}, got {$countAfterSecond}.",
-                );
+            self::assertSame(
+                $countAfterFirst,
+                $countAfterSecond,
+                'No additional database queries are made on the second call.',
+            );
         } finally {
             Yii::setLogger($originalLogger);
         }
@@ -87,19 +89,19 @@ final class LoginFormTest extends \Codeception\Test\Unit
             ],
         );
 
-        verify($model->login())
-            ->true(
-                'Failed asserting that login succeeds with correct credentials.',
-            );
-        verify(Yii::$app->user->isGuest)
-            ->false(
-                "Failed asserting that 'user' is no longer a guest after login.",
-            );
-        verify($model->errors)
-            ->arrayHasNotKey(
-                'password',
-                "Failed asserting that 'password' error does not exist after successful login.",
-            );
+        self::assertTrue(
+            $model->login(),
+            'Login succeeds with correct credentials.',
+        );
+        self::assertFalse(
+            Yii::$app->user->isGuest,
+            'User is no longer a guest after login.',
+        );
+        self::assertArrayNotHasKey(
+            'password',
+            $model->errors,
+            'Password error does not exist after successful login.',
+        );
     }
 
     public function testLoginDeletedAccount(): void
@@ -111,14 +113,14 @@ final class LoginFormTest extends \Codeception\Test\Unit
             ],
         );
 
-        verify($model->login())
-            ->false(
-                'Failed asserting that login fails for a deleted account.',
-            );
-        verify(Yii::$app->user->isGuest)
-            ->true(
-                "Failed asserting that 'user' remains a 'guest' after deleted account login attempt.",
-            );
+        self::assertFalse(
+            $model->login(),
+            'Login fails for a deleted account.',
+        );
+        self::assertTrue(
+            Yii::$app->user->isGuest,
+            "User remains a 'guest' after deleted account login attempt.",
+        );
     }
 
     public function testLoginInactiveAccount(): void
@@ -130,14 +132,14 @@ final class LoginFormTest extends \Codeception\Test\Unit
             ],
         );
 
-        verify($model->login())
-            ->false(
-                'Failed asserting that login fails for an inactive account.',
-            );
-        verify(Yii::$app->user->isGuest)
-            ->true(
-                "Failed asserting that 'user' remains a 'guest' after inactive account login attempt.",
-            );
+        self::assertFalse(
+            $model->login(),
+            'Login fails for an inactive account.',
+        );
+        self::assertTrue(
+            Yii::$app->user->isGuest,
+            "User remains a 'guest' after inactive account login attempt.",
+        );
     }
 
     public function testLoginNoUser(): void
@@ -149,14 +151,14 @@ final class LoginFormTest extends \Codeception\Test\Unit
             ],
         );
 
-        verify($model->login())
-            ->false(
-                'Failed asserting that login fails with non-existing username.',
-            );
-        verify(Yii::$app->user->isGuest)
-            ->true(
-                "Failed asserting that 'user' remains a 'guest' after failed login.",
-            );
+        self::assertFalse(
+            $model->login(),
+            'Login fails with non-existing username.',
+        );
+        self::assertTrue(
+            Yii::$app->user->isGuest,
+            "User remains a 'guest' after failed login.",
+        );
     }
 
     public function testLoginReturnsFalseWhenUserIsNull(): void
@@ -169,10 +171,10 @@ final class LoginFormTest extends \Codeception\Test\Unit
             ],
         );
 
-        verify($model->login())
-            ->false(
-                "Failed asserting that login returns 'false' when user is 'null' after validation.",
-            );
+        self::assertFalse(
+            $model->login(),
+            "Login returns 'false' when user is 'null' after validation.",
+        );
     }
 
     public function testLoginWrongPassword(): void
@@ -184,19 +186,19 @@ final class LoginFormTest extends \Codeception\Test\Unit
             ],
         );
 
-        verify($model->login())
-            ->false(
-                'Failed asserting that login fails with wrong password.',
-            );
-        verify(Yii::$app->user->isGuest)
-            ->true(
-                "Failed asserting that 'user' remains a 'guest' after wrong password.",
-            );
-        verify($model->errors)
-            ->arrayHasKey(
-                'password',
-                "Failed asserting that a 'password' validation error is present.",
-            );
+        self::assertFalse(
+            $model->login(),
+            'Login fails with wrong password.',
+        );
+        self::assertTrue(
+            Yii::$app->user->isGuest,
+            "User remains a 'guest' after wrong password.",
+        );
+        self::assertArrayHasKey(
+            'password',
+            $model->errors,
+            'A password validation error is present.',
+        );
     }
 
     protected function _after(): void

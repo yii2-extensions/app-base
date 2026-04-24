@@ -38,14 +38,14 @@ final class VerifyEmailFormTest extends \Codeception\Test\Unit
     {
         $user = User::findOne(['username' => 'test2.test']);
 
-        verify($user)
-            ->notEmpty(
-                "Failed asserting that fixture user 'test2.test' exists.",
-            );
-        verify($user->verification_token ?? null)
-            ->notEmpty(
-                "Failed asserting that fixture user 'test2.test' has a verification token.",
-            );
+        self::assertNotEmpty(
+            $user,
+            "Fixture user 'test2.test' exists.",
+        );
+        self::assertNotEmpty(
+            $user->verification_token ?? null,
+            "Fixture user 'test2.test' has a verification token.",
+        );
 
         /** @var string $token */
         $token = $user->verification_token ?? '';
@@ -53,7 +53,7 @@ final class VerifyEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             UnitTester::class,
             $this->tester,
-            'Failed asserting that the tester instance is available.',
+            'Tester instance is available.',
         );
 
         $this->tester->expectThrowable(
@@ -69,7 +69,7 @@ final class VerifyEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             UnitTester::class,
             $this->tester,
-            'Failed asserting that the tester instance is available.',
+            'Tester instance is available.',
         );
 
         $this->tester->expectThrowable(
@@ -93,48 +93,48 @@ final class VerifyEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
         self::assertNotNull(
             $user->verification_token,
-            "Failed asserting that fixture user 'test.test' has a verification token.",
+            "Fixture user 'test.test' has a verification token.",
         );
 
         $model = new VerifyEmailForm($user->verification_token);
 
         $user = $model->verifyEmail();
 
-        verify($user)
-            ->instanceOf(
-                User::class,
-                "Failed asserting that 'verifyEmail()' returns a User instance.",
-            );
+        self::assertInstanceOf(
+            User::class,
+            $user,
+            'Returns a User instance.',
+        );
 
-        $user?->refresh();
+        $user->refresh();
 
-        verify($user?->username)
-            ->equals(
-                'test.test',
-                "Failed asserting that verified user has username 'test.test'.",
-            );
-        verify($user?->email)
-            ->equals(
-                'test.test@example.com',
-                "Failed asserting that verified user has email 'test.test@example.com'.",
-            );
-        verify($user?->status)
-            ->equals(
-                User::STATUS_ACTIVE,
-                'Failed asserting that verified user status is ACTIVE.',
-            );
-        verify($user?->verification_token)
-            ->null(
-                'Failed asserting that verification token is cleared after verification.',
-            );
-        verify($user?->validatePassword('Test1234'))
-            ->true(
-                "Failed asserting that verified 'user password' still validates correctly.",
-            );
+        self::assertSame(
+            'test.test',
+            $user->username,
+            "Verified user has username 'test.test'.",
+        );
+        self::assertSame(
+            'test.test@example.com',
+            $user->email,
+            "Verified user has email 'test.test@example.com'.",
+        );
+        self::assertSame(
+            User::STATUS_ACTIVE,
+            $user->status,
+            "Verified user status is 'ACTIVE'.",
+        );
+        self::assertNull(
+            $user->verification_token,
+            'Verification token is cleared after verification.',
+        );
+        self::assertTrue(
+            $user->validatePassword('Test1234'),
+            "Verified 'user password' still validates correctly.",
+        );
     }
 
     public function testVerifyEmailReturnsNullWhenUserIsNull(): void
@@ -144,11 +144,11 @@ final class VerifyEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
         self::assertNotNull(
             $user->verification_token,
-            "Failed asserting that fixture user 'test.test' has a verification token.",
+            "Fixture user 'test.test' has a verification token.",
         );
 
         $form = new VerifyEmailForm($user->verification_token);
@@ -156,9 +156,9 @@ final class VerifyEmailFormTest extends \Codeception\Test\Unit
 
         $reflection->setValue($form, null);
 
-        verify($form->verifyEmail())
-            ->null(
-                "Failed asserting that verifyEmail returns 'null' when user is 'null'.",
-            );
+        self::assertNull(
+            $form->verifyEmail(),
+            "Return 'null' when user is 'null'.",
+        );
     }
 }

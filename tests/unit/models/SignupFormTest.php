@@ -12,6 +12,7 @@ use Yii;
 use yii\base\{Event, ModelEvent};
 use yii\db\BaseActiveRecord;
 use yii\mail\{BaseMailer, MailEvent, MessageInterface};
+use yii\symfonymailer\Message;
 
 /**
  * Unit tests for {@see \app\models\SignupForm} model.
@@ -51,15 +52,15 @@ final class SignupFormTest extends \Codeception\Test\Unit
 
         $user = $model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name);
 
-        verify($user)
-            ->true(
-                "Failed asserting that signup returns 'true' on success.",
-            );
+        self::assertTrue(
+            $user,
+            "Signup returns 'true' on success.",
+        );
 
         self::assertInstanceOf(
             UnitTester::class,
             $this->tester,
-            'Failed asserting that the tester instance is available.',
+            'Tester instance is available.',
         );
 
         $user = $this->tester->grabRecord(
@@ -74,21 +75,21 @@ final class SignupFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that 'signup' persisted an 'inactive' user.",
+            "Signup persisted an 'inactive' user.",
         );
         self::assertNotNull(
             $user->verification_token,
-            'Failed asserting that the persisted user has a verification token.',
+            'Persisted user has a verification token.',
         );
         self::assertNotEmpty(
             $user->verification_token,
-            "Failed asserting that the persisted user verification 'token' is not empty.",
+            "Persisted user verification 'token' is not empty.",
         );
 
         self::assertInstanceOf(
             UnitTester::class,
             $this->tester,
-            'Failed asserting that the tester instance is available.',
+            'Tester instance is available.',
         );
 
         $this->tester->seeEmailIsSent();
@@ -96,32 +97,51 @@ final class SignupFormTest extends \Codeception\Test\Unit
         /** @var MessageInterface $mail */
         $mail = $this->tester->grabLastSentEmail();
 
-        verify($mail)
-            ->instanceOf(
-                MessageInterface::class,
-                'Failed asserting that a verification email was sent.',
-            );
-        verify($mail->getTo())
-            ->arrayHasKey(
-                'some_email@example.com',
-                'Failed asserting that email is sent to the registered address.',
-            );
-        verify($mail->getFrom())
-            ->arrayHasKey(
-                $supportEmail,
-                'Failed asserting that email is sent from the support address.',
-            );
-        verify($mail->getSubject())
-            ->equals(
-                'Account registration at ' . Yii::$app->name,
-                'Failed asserting that email subject matches the registration template.',
-            );
-        /** @var \yii\symfonymailer\Message $mail */
-        verify($mail->getSymfonyEmail()->getTextBody())
-            ->stringContainsString(
-                $user->verification_token,
-                'Failed asserting that email body contains the verification token.',
-            );
+        self::assertInstanceOf(
+            MessageInterface::class,
+            $mail,
+            'A verification email was sent.',
+        );
+
+        $to = $mail->getTo();
+        $from = $mail->getFrom();
+
+        self::assertIsArray(
+            $to,
+            "Email 'To' must be an array of recipients.",
+        );
+        self::assertIsArray(
+            $from,
+            "Email 'From' must be an array of senders.",
+        );
+        self::assertArrayHasKey(
+            'some_email@example.com',
+            $to,
+            'Email is sent to the registered address.',
+        );
+        self::assertArrayHasKey(
+            $supportEmail,
+            $from,
+            'Email is sent from the support address.',
+        );
+        self::assertSame(
+            'Account registration at ' . Yii::$app->name,
+            $mail->getSubject(),
+            'Email subject matches the registration template.',
+        );
+
+        /** @var Message $mail */
+        $textBody = $mail->getSymfonyEmail()->getTextBody();
+
+        self::assertIsString(
+            $textBody,
+            'Email text body must be a string.',
+        );
+        self::assertStringContainsString(
+            $user->verification_token,
+            $textBody,
+            'Email body contains the verification token.',
+        );
     }
 
     public function testNotCorrectSignup(): void
@@ -136,28 +156,28 @@ final class SignupFormTest extends \Codeception\Test\Unit
 
         $supportEmail = Yii::$app->params['supportEmail'];
 
-        verify($model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->null(
-                'Failed asserting that validation failure returns null.',
-            );
-        verify($model->getErrors('username'))
-            ->notEmpty(
-                'Failed asserting that a username validation error is present.',
-            );
-        verify($model->getErrors('email'))
-            ->notEmpty(
-                'Failed asserting that an email validation error is present.',
-            );
-        verify($model->getFirstError('username'))
-            ->equals(
-                'This username has already been taken.',
-                'Failed asserting that the username uniqueness error message is correct.',
-            );
-        verify($model->getFirstError('email'))
-            ->equals(
-                'This email address has already been taken.',
-                'Failed asserting that the email uniqueness error message is correct.',
-            );
+        self::assertNull(
+            $model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            "Validation failure returns 'null'.",
+        );
+        self::assertNotEmpty(
+            $model->getErrors('username'),
+            'A username validation error is present.',
+        );
+        self::assertNotEmpty(
+            $model->getErrors('email'),
+            'An email validation error is present.',
+        );
+        self::assertSame(
+            'This username has already been taken.',
+            $model->getFirstError('username'),
+            'Username uniqueness error message is correct.',
+        );
+        self::assertSame(
+            'This email address has already been taken.',
+            $model->getFirstError('email'),
+            'Email uniqueness error message is correct.',
+        );
     }
 
     public function testSignupReturnsFalseWhenSaveFails(): void
@@ -179,18 +199,18 @@ final class SignupFormTest extends \Codeception\Test\Unit
         $supportEmail = Yii::$app->params['supportEmail'];
 
         try {
-            verify($model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that signup returns 'false' when user save fails.",
-                );
+            self::assertFalse(
+                $model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "Signup returns 'false' when user save fails.",
+            );
         } finally {
             Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_INSERT, $handler);
         }
 
-        verify(User::findOne(['username' => 'save_fail_user']))
-            ->null(
-                'Failed asserting that user was not persisted after rollback.',
-            );
+        self::assertNull(
+            User::findOne(['username' => 'save_fail_user']),
+            'User was not persisted after rollback.',
+        );
     }
 
     public function testSignupReturnsFalseWhenSendEmailFails(): void
@@ -212,18 +232,18 @@ final class SignupFormTest extends \Codeception\Test\Unit
         $supportEmail = Yii::$app->params['supportEmail'];
 
         try {
-            verify($model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that signup returns 'false' when email sending fails.",
-                );
+            self::assertFalse(
+                $model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "Signup returns 'false' when email sending fails.",
+            );
         } finally {
             Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
         }
 
-        verify(User::findOne(['username' => 'email_fail_user']))
-            ->notNull(
-                'Failed asserting that user was persisted even after email failure (email is sent outside the DB transaction).',
-            );
+        self::assertNotNull(
+            User::findOne(['username' => 'email_fail_user']),
+            'User was persisted even after email failure (email is sent outside the DB transaction).',
+        );
     }
 
     public function testSignupRollsBackTransactionWhenUserSaveThrows(): void
@@ -245,18 +265,18 @@ final class SignupFormTest extends \Codeception\Test\Unit
         $supportEmail = Yii::$app->params['supportEmail'];
 
         try {
-            verify($model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that signup returns 'false' when the user save throws inside the transaction.",
-                );
+            self::assertFalse(
+                $model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "Signup returns 'false' when the user save throws inside the transaction.",
+            );
         } finally {
             Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_INSERT, $handler);
         }
 
-        verify(User::findOne(['username' => 'rollback_user']))
-            ->null(
-                'Failed asserting that the user row was rolled back when an exception was thrown before the transaction commit.',
-            );
+        self::assertNull(
+            User::findOne(['username' => 'rollback_user']),
+            'User row was rolled back when an exception was thrown before the transaction commit.',
+        );
     }
 
     public function testThrowRuntimeExceptionWhenMailerFailsDuringSignup(): void
@@ -278,17 +298,17 @@ final class SignupFormTest extends \Codeception\Test\Unit
         $supportEmail = Yii::$app->params['supportEmail'];
 
         try {
-            verify($model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that signup returns 'false' when mailer throws exception.",
-                );
+            self::assertFalse(
+                $model->signup(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "Signup returns 'false' when mailer throws exception.",
+            );
         } finally {
             Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
         }
 
-        verify(User::findOne(['username' => 'exception_user']))
-            ->notNull(
-                'Failed asserting that user was persisted even after mailer exception (email is sent outside the DB transaction).',
-            );
+        self::assertNotNull(
+            User::findOne(['username' => 'exception_user']),
+            'User was persisted even after mailer exception (email is sent outside the DB transaction).',
+        );
     }
 }

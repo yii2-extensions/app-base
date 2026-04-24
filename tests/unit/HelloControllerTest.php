@@ -39,7 +39,7 @@ final class HelloControllerTest extends Unit
         self::assertSame(
             ExitCode::OK,
             $exitCode,
-            'Exit code should be OK.',
+            "Exit code should be 'OK'.",
         );
     }
 
@@ -62,7 +62,7 @@ final class HelloControllerTest extends Unit
         self::assertSame(
             ExitCode::OK,
             $exitCode,
-            'Exit code should be OK.',
+            "Exit code should be 'OK'.",
         );
     }
 }

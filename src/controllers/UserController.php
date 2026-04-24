@@ -96,6 +96,10 @@ class UserController extends Controller
      */
     public function actionLogin(): Response|string
     {
+        if (Yii::$app->user->isGuest === false) {
+            return $this->goHome();
+        }
+
         $model = new LoginForm();
 
         /** @var array<string, mixed> $post */
@@ -133,6 +137,10 @@ class UserController extends Controller
      */
     public function actionRequestPasswordReset(): Response|string
     {
+        if (Yii::$app->user->isGuest === false) {
+            return $this->goHome();
+        }
+
         $model = new PasswordResetRequestForm();
 
         /** @var array<string, mixed> $post */
@@ -171,6 +179,10 @@ class UserController extends Controller
      */
     public function actionResendVerificationEmail(): Response|string
     {
+        if (Yii::$app->user->isGuest === false) {
+            return $this->goHome();
+        }
+
         $model = new ResendVerificationEmailForm();
 
         /** @var array<string, mixed> $post */
@@ -259,6 +271,10 @@ class UserController extends Controller
      */
     public function actionSignup(): Response|string
     {
+        if (Yii::$app->user->isGuest === false) {
+            return $this->goHome();
+        }
+
         $model = new SignupForm();
 
         /** @var array<string, mixed> $post */

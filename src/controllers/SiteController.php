@@ -8,7 +8,7 @@ use app\models\ContactForm;
 use Throwable;
 use Yii;
 use yii\mail\MailerInterface;
-use yii\web\{Controller, HttpException, Response};
+use yii\web\{Controller, ErrorAction, Response};
 
 /**
  * Provides site page actions (home, about, contact, error) rendered through the default PHP view layer.
@@ -88,23 +88,6 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays error page.
-     *
-     * @return Response|string Rendered error view.
-     */
-    public function actionError(): Response|string
-    {
-        $exception = Yii::$app->errorHandler->exception;
-
-        $statusCode = $exception instanceof HttpException ? $exception->statusCode : 500;
-        $message = (YII_DEBUG && $exception instanceof Throwable)
-            ? $exception->getMessage()
-            : 'An internal server error occurred.';
-
-        return $this->render('error', ['status' => $statusCode, 'message' => $message]);
-    }
-
-    /**
      * Displays homepage.
      *
      * @return Response|string Rendered homepage view.
@@ -112,5 +95,19 @@ class SiteController extends Controller
     public function actionIndex(): Response|string
     {
         return $this->render('index');
+    }
+
+    /**
+     * Declares the error sub-action handled by {@see ErrorAction}, which sets the real HTTP status code from the
+     * captured exception and renders only UserException messages (HttpException and subclasses); other {@see Throwable}
+     * fall back to the generic message to avoid leaking internals.
+     *
+     * @return array<string, array{class: class-string}|class-string>
+     */
+    public function actions(): array
+    {
+        return [
+            'error' => ['class' => ErrorAction::class],
+        ];
     }
 }

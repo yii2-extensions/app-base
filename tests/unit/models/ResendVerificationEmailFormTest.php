@@ -43,19 +43,19 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $model->attributes = ['email' => ''];
 
-        verify($model->validate())
-            ->false(
-                'Failed asserting that validation fails for an empty email.',
-            );
-        verify($model->hasErrors())
-            ->true(
-                'Failed asserting that validation errors are present.',
-            );
-        verify($model->getFirstError('email'))
-            ->equals(
-                'Email cannot be blank.',
-                'Failed asserting that the blank email error message is correct.',
-            );
+        self::assertFalse(
+            $model->validate(),
+            'Validation fails for an empty email.',
+        );
+        self::assertTrue(
+            $model->hasErrors(),
+            'Validation errors are present.',
+        );
+        self::assertSame(
+            'Email cannot be blank.',
+            $model->getFirstError('email'),
+            'Blank email error message is correct.',
+        );
     }
 
     public function testExceptionDuringSaveRollsBackTransaction(): void
@@ -65,7 +65,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $fixtureUser,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
 
         $originalToken = $fixtureUser->verification_token;
@@ -83,10 +83,10 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
             $supportEmail = Yii::$app->params['supportEmail'];
 
-            verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that sendEmail returns 'false' when the transaction block throws.",
-                );
+            self::assertFalse(
+                $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "SendEmail returns 'false' when the transaction block throws.",
+            );
         } finally {
             Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
         }
@@ -96,17 +96,17 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
         self::assertSame(
             $originalToken,
             $user->verification_token,
-            'Failed asserting that transaction rollback preserved the original verification token.',
+            'Transaction rollback preserved the original verification token.',
         );
         self::assertSame(
             [],
             $this->tester?->grabSentEmails() ?? [],
-            'Failed asserting that no email was dispatched after transaction rollback.',
+            'No email was dispatched after transaction rollback.',
         );
     }
 
@@ -116,15 +116,15 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $model->attributes = ['email' => 'not-an-email'];
 
-        verify($model->validate())
-            ->false(
-                'Failed asserting that validation fails for an invalid email format.',
-            );
-        verify($model->getFirstError('email'))
-            ->equals(
-                'Email is not a valid email address.',
-                'Failed asserting that invalid email format surfaces the format error.',
-            );
+        self::assertFalse(
+            $model->validate(),
+            'Validation fails for an invalid email format.',
+        );
+        self::assertSame(
+            'Email is not a valid email address.',
+            $model->getFirstError('email'),
+            'Invalid email format surfaces the format error.',
+        );
     }
 
     public function testRateLimitBlocksRapidResend(): void
@@ -135,19 +135,19 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $first->attributes = ['email' => 'test.test@example.com'];
 
-        verify($first->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->true(
-                'Failed asserting that first sendEmail call succeeds before rate-limit engages.',
-            );
+        self::assertTrue(
+            $first->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            'First sendEmail call succeeds before rate-limit engages.',
+        );
 
         $second = new ResendVerificationEmailForm();
 
         $second->attributes = ['email' => 'test.test@example.com'];
 
-        verify($second->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                "Failed asserting that second sendEmail call returns 'false' while cooldown is active.",
-            );
+        self::assertFalse(
+            $second->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            "Second sendEmail call returns 'false' while cooldown is active.",
+        );
 
         $this->tester?->seeEmailIsSent(1);
     }
@@ -177,10 +177,10 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
             $supportEmail = Yii::$app->params['supportEmail'];
 
-            verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->true(
-                    "Failed asserting that 'sendEmail' fails open when the cache backend rejects writes.",
-                );
+            self::assertTrue(
+                $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "'SendEmail' fails open when the cache backend rejects writes.",
+            );
         } finally {
             Yii::$app->set('cache', $originalCache);
         }
@@ -194,20 +194,19 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $mismatched->attributes = ['email' => 'TEST.TEST@EXAMPLE.COM'];
 
-        verify($mismatched->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                "Failed asserting that 'sendEmail' returns 'false' for a case-mismatched address (lookup misses).",
-            );
+        self::assertFalse(
+            $mismatched->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            "'SendEmail' returns 'false' for a case-mismatched address (lookup misses).",
+        );
 
         $legit = new ResendVerificationEmailForm();
 
         $legit->attributes = ['email' => 'test.test@example.com'];
 
-        verify($legit->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                'Failed asserting that a case-correct resend is rate-limited after a prior case-mismatched attempt to '
-                . 'the same address.',
-            );
+        self::assertFalse(
+            $legit->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            'A case-correct resend is rate-limited after a prior case-mismatched attempt to the same address.',
+        );
     }
 
     public function testResendToActiveUser(): void
@@ -216,17 +215,17 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $model->attributes = ['email' => 'test2.test@example.com'];
 
-        verify($model->validate())
-            ->true(
-                'Failed asserting that validation passes for an active user (enumeration-safe).',
-            );
+        self::assertTrue(
+            $model->validate(),
+            'Validation passes for an active user (enumeration-safe).',
+        );
 
         $supportEmail = Yii::$app->params['supportEmail'];
 
-        verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                "Failed asserting that 'sendEmail' returns 'false' for an active user under the inactive-only filter.",
-            );
+        self::assertFalse(
+            $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            "'SendEmail' returns 'false' for an active user under the inactive-only filter.",
+        );
     }
 
     public function testSendEmailReturnsFalseWhenSaveFails(): void
@@ -244,10 +243,10 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         $supportEmail = Yii::$app->params['supportEmail'];
 
         try {
-            verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that sendEmail returns 'false' when user save fails.",
-                );
+            self::assertFalse(
+                $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "SendEmail returns 'false' when user save fails.",
+            );
         } finally {
             Event::off(User::class, BaseActiveRecord::EVENT_BEFORE_UPDATE, $handler);
         }
@@ -261,10 +260,10 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $supportEmail = Yii::$app->params['supportEmail'];
 
-        verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                "Failed asserting that sendEmail returns 'false' when inactive user is not found.",
-            );
+        self::assertFalse(
+            $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            "SendEmail returns 'false' when inactive user is not found.",
+        );
     }
 
     public function testStaleTokenDetectedBeforeSend(): void
@@ -290,10 +289,10 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
             $supportEmail = Yii::$app->params['supportEmail'];
 
-            verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that sendEmail returns 'false' when the token was overwritten before send.",
-                );
+            self::assertFalse(
+                $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "SendEmail returns 'false' when the token was overwritten before send.",
+            );
         } finally {
             Event::off(User::class, BaseActiveRecord::EVENT_AFTER_UPDATE, $handler);
         }
@@ -303,17 +302,17 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
         self::assertSame(
             $sentinelToken,
             $user->verification_token,
-            'Failed asserting that the concurrent overwrite was persisted in DB.',
+            'Concurrent overwrite was persisted in DB.',
         );
         self::assertSame(
             [],
             $this->tester?->grabSentEmails() ?? [],
-            'Failed asserting that no email was dispatched when a stale token was detected.',
+            'No email was dispatched when a stale token was detected.',
         );
     }
 
@@ -324,11 +323,11 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $userBefore,
-            "Failed asserting that fixture user 'test.test' exists before resend.",
+            "Fixture user 'test.test' exists before resend.",
         );
         self::assertNotNull(
             $userBefore->verification_token,
-            "Failed asserting that fixture user 'test.test' has an initial verification token.",
+            "Fixture user 'test.test' has an initial verification token.",
         );
 
         $oldToken = $userBefore->verification_token;
@@ -337,26 +336,25 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $model->attributes = ['email' => 'test.test@example.com'];
 
-        verify($model->validate())
-            ->true(
-                'Failed asserting that validation passes for an inactive user email.',
-            );
-        verify($model->hasErrors())
-            ->false(
-                'Failed asserting that no validation errors are present.',
-            );
+        self::assertTrue(
+            $model->validate(),
+            'Validation passes for an inactive user email.',
+        );
+        self::assertFalse(
+            $model->hasErrors(),
+            'No validation errors are present.',
+        );
 
         $supportEmail = Yii::$app->params['supportEmail'];
 
-        verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->true(
-                'Failed asserting that verification email is resent successfully.',
-            );
-
+        self::assertTrue(
+            $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            'Verification email is resent successfully.',
+        );
         self::assertInstanceOf(
             UnitTester::class,
             $this->tester,
-            'Failed asserting that the tester instance is available.',
+            'Tester instance is available.',
         );
 
         $this->tester->seeEmailIsSent();
@@ -364,50 +362,68 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         /** @var MessageInterface $mail */
         $mail = $this->tester->grabLastSentEmail();
 
-        verify($mail)
-            ->instanceOf(
-                MessageInterface::class,
-                'Failed asserting that a verification email was captured.',
-            );
-        verify($mail->getTo())
-            ->arrayHasKey(
-                'test.test@example.com',
-                'Failed asserting that email is sent to the inactive user.',
-            );
-        verify($mail->getFrom())
-            ->arrayHasKey(
-                $supportEmail,
-                "Failed asserting that email is sent 'from' the support address.",
-            );
-        verify($mail->getSubject())
-            ->equals(
-                'Account registration at ' . Yii::$app->name,
-                "Failed asserting that email 'subject' matches the registration template.",
-            );
+        self::assertInstanceOf(
+            MessageInterface::class,
+            $mail,
+            'A verification email was captured.',
+        );
+
+        $to = $mail->getTo();
+        $from = $mail->getFrom();
+
+        self::assertIsArray(
+            $to,
+            "Email 'To' must be an array of recipients.",
+        );
+        self::assertIsArray(
+            $from,
+            "Email 'From' must be an array of senders.",
+        );
+        self::assertArrayHasKey(
+            'test.test@example.com',
+            $to,
+            'Email is sent to the inactive user.',
+        );
+        self::assertArrayHasKey(
+            $supportEmail,
+            $from,
+            "Email is sent 'from' the support address.",
+        );
+        self::assertSame(
+            'Account registration at ' . Yii::$app->name,
+            $mail->getSubject(),
+            "Email 'subject' matches the registration template.",
+        );
 
         $user = User::findOne(['username' => 'test.test']);
 
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
         self::assertNotNull(
             $user->verification_token,
-            "Failed asserting that fixture user 'test.test' has a verification token.",
+            "Fixture user 'test.test' has a verification token.",
         );
         self::assertNotSame(
             $oldToken,
             $user->verification_token,
-            'Failed asserting that resend regenerates the verification token.',
+            'Resend regenerates the verification token.',
         );
 
         /** @var \yii\symfonymailer\Message $mail */
-        verify($mail->getSymfonyEmail()->getTextBody())
-            ->stringContainsString(
-                $user->verification_token,
-                "Failed asserting that email 'body' contains the verification 'token'.",
-            );
+        $textBody = $mail->getSymfonyEmail()->getTextBody();
+
+        self::assertIsString(
+            $textBody,
+            'Email text body must be a string.',
+        );
+        self::assertStringContainsString(
+            $user->verification_token,
+            $textBody,
+            "Email 'body' contains the verification 'token'.",
+        );
     }
 
     public function testThrowRuntimeExceptionWhenMailerFailsDuringSendEmail(): void
@@ -425,10 +441,10 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         $supportEmail = Yii::$app->params['supportEmail'];
 
         try {
-            verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that sendEmail returns 'false' when mailer throws exception.",
-                );
+            self::assertFalse(
+                $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "SendEmail returns 'false' when mailer throws exception.",
+            );
         } finally {
             Yii::$app->mailer->off(\yii\mail\BaseMailer::EVENT_BEFORE_SEND, $handler);
         }
@@ -438,11 +454,11 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
         self::assertNotNull(
             $user->verification_token,
-            'Failed asserting that verification token is preserved after mailer exception.',
+            'Verification token is preserved after mailer exception.',
         );
     }
 
@@ -453,7 +469,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $fixtureUser,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
 
         $originalToken = $fixtureUser->verification_token;
@@ -471,10 +487,10 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         $supportEmail = Yii::$app->params['supportEmail'];
 
         try {
-            verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-                ->false(
-                    "Failed asserting that sendEmail returns 'false' when mailer send returns 'false'.",
-                );
+            self::assertFalse(
+                $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+                "SendEmail returns 'false' when mailer send returns 'false'.",
+            );
         } finally {
             Yii::$app->mailer->off(\yii\mail\BaseMailer::EVENT_BEFORE_SEND, $handler);
         }
@@ -484,16 +500,16 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'test.test' exists.",
+            "Fixture user 'test.test' exists.",
         );
         self::assertNotNull(
             $user->verification_token,
-            'Failed asserting that verification token is preserved when mailer send returns false.',
+            'Verification token is preserved when mailer send returns false.',
         );
         self::assertNotSame(
             $originalToken,
             $user->verification_token,
-            'Failed asserting that verification token was regenerated and committed before mailer failure.',
+            'Verification token was regenerated and committed before mailer failure.',
         );
     }
 
@@ -503,17 +519,17 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $model->attributes = ['email' => 'aaa@bbb.cc'];
 
-        verify($model->validate())
-            ->true(
-                'Failed asserting that validation passes for an unknown email (enumeration-safe).',
-            );
+        self::assertTrue(
+            $model->validate(),
+            'Validation passes for an unknown email (enumeration-safe).',
+        );
 
         $supportEmail = Yii::$app->params['supportEmail'];
 
-        verify($model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name))
-            ->false(
-                "Failed asserting that 'sendEmail' returns 'false' for an unknown email address.",
-            );
+        self::assertFalse(
+            $model->sendEmail(Yii::$app->mailer, $supportEmail, Yii::$app->name),
+            "'SendEmail' returns 'false' for an unknown email address.",
+        );
     }
 
     protected function _before(): void

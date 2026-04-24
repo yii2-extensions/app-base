@@ -26,10 +26,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validateTurnstile('turnstileToken', null);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->false(
-                'Turnstile validation should be skipped when model already has errors.',
-            );
+        self::assertFalse(
+            $model->hasErrors('turnstileToken'),
+            'Turnstile validation should be skipped when model already has errors.',
+        );
     }
 
     public function testValidateTurnstileSkipsWhenSecretKeyIsEmptyInTestEnv(): void
@@ -45,10 +45,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validate(['turnstileToken']);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->false(
-                'Turnstile validation should be skipped when secret key is empty in test environment.',
-            );
+        self::assertFalse(
+            $model->hasErrors('turnstileToken'),
+            'Turnstile validation should be skipped when secret key is empty in test environment.',
+        );
     }
 
     public function testValidateTurnstileWithCloudflareFailKeys(): void
@@ -62,10 +62,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validateTurnstile('turnstileToken', null);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->true(
-                'Turnstile validation should fail with Cloudflare always-fail test key.',
-            );
+        self::assertTrue(
+            $model->hasErrors('turnstileToken'),
+            'Turnstile validation should fail with Cloudflare always-fail test key.',
+        );
 
         Yii::$app->params['turnstile.secretKey'] = $originalKey;
     }
@@ -85,10 +85,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validateTurnstile('turnstileToken', null);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->false(
-                'Turnstile validation should pass with Cloudflare always-pass test key.',
-            );
+        self::assertFalse(
+            $model->hasErrors('turnstileToken'),
+            'Turnstile validation should pass with Cloudflare always-pass test key.',
+        );
 
         Yii::$app->params['turnstile.secretKey'] = $originalKey;
     }
@@ -108,10 +108,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validateTurnstile('turnstileToken', null);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->true(
-                'Turnstile validation should fail when API returns success: false.',
-            );
+        self::assertTrue(
+            $model->hasErrors('turnstileToken'),
+            "Turnstile validation should fail when API returns success: 'false'.",
+        );
 
         Yii::$app->params['turnstile.secretKey'] = $originalKey;
     }
@@ -131,10 +131,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validateTurnstile('turnstileToken', null);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->true(
-                'Turnstile validation should fail when API returns invalid JSON.',
-            );
+        self::assertTrue(
+            $model->hasErrors('turnstileToken'),
+            'Turnstile validation should fail when API returns invalid JSON.',
+        );
 
         Yii::$app->params['turnstile.secretKey'] = $originalKey;
     }
@@ -154,10 +154,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validateTurnstile('turnstileToken', null);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->true(
-                'Turnstile validation should fail when HTTP request returns null.',
-            );
+        self::assertTrue(
+            $model->hasErrors('turnstileToken'),
+            "Turnstile validation should fail when HTTP request returns 'null'.",
+        );
 
         Yii::$app->params['turnstile.secretKey'] = $originalKey;
     }
@@ -177,10 +177,10 @@ final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
 
         $model->validateTurnstile('turnstileToken', null);
 
-        verify($model->hasErrors('turnstileToken'))
-            ->false(
-                'Turnstile validation should pass when API returns success.',
-            );
+        self::assertFalse(
+            $model->hasErrors('turnstileToken'),
+            'Turnstile validation should pass when API returns success.',
+        );
 
         Yii::$app->params['turnstile.secretKey'] = $originalKey;
     }

@@ -41,11 +41,11 @@ final class ResetPasswordFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'okirlin' exists.",
+            "Fixture user 'okirlin' exists.",
         );
         self::assertNotNull(
             $user->password_reset_token,
-            "Failed asserting that fixture user 'okirlin' has a 'password reset token'.",
+            "Fixture user 'okirlin' has a 'password reset token'.",
         );
 
         $token = $user->password_reset_token;
@@ -54,21 +54,21 @@ final class ResetPasswordFormTest extends \Codeception\Test\Unit
 
         $form->password = 'new_password_123';
 
-        verify($form->resetPassword())
-            ->notEmpty(
-                'Failed asserting that password reset succeeds with a valid token and password.',
-            );
+        self::assertNotEmpty(
+            $form->resetPassword(),
+            'Password reset must succeed with a valid token and password.',
+        );
 
         $user->refresh();
 
-        verify($user->password_reset_token)
-            ->null(
-                'Failed asserting that password reset token is cleared after reset.',
-            );
-        verify($user->validatePassword('new_password_123'))
-            ->true(
-                'Failed asserting that the new password validates after reset.',
-            );
+        self::assertNull(
+            $user->password_reset_token,
+            'Password reset token must be cleared after reset.',
+        );
+        self::assertTrue(
+            $user->validatePassword('new_password_123'),
+            'The new password must validate after reset.',
+        );
     }
 
     public function testResetPasswordReturnsFalseWhenUserIsNull(): void
@@ -78,11 +78,11 @@ final class ResetPasswordFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $user,
-            "Failed asserting that fixture user 'okirlin' exists.",
+            "Fixture user 'okirlin' exists.",
         );
         self::assertNotNull(
             $user->password_reset_token,
-            "Failed asserting that fixture user 'okirlin' has a 'password reset token'.",
+            "Fixture user 'okirlin' has a 'password reset token'.",
         );
 
         $token = $user->password_reset_token;
@@ -93,10 +93,10 @@ final class ResetPasswordFormTest extends \Codeception\Test\Unit
 
         $reflection->setValue($form, null);
 
-        verify($form->resetPassword())
-            ->false(
-                "Failed asserting that resetPassword returns 'false' when user is 'null'.",
-            );
+        self::assertFalse(
+            $form->resetPassword(),
+            "Return 'false' when 'user' is 'null'.",
+        );
     }
 
     public function testThrowInvalidArgumentExceptionWhenTokenIsEmptyOrInvalid(): void
@@ -104,7 +104,7 @@ final class ResetPasswordFormTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             UnitTester::class,
             $this->tester,
-            'Failed asserting that the tester instance is available.',
+            'Tester instance is available.',
         );
 
         $this->tester->expectThrowable(

@@ -42,6 +42,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
+
         $response = $controller->actionAbout();
 
         self::assertNotEmpty(
@@ -59,6 +60,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
+
         $response = $controller->actionContact();
 
         self::assertNotEmpty(
@@ -73,16 +75,18 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $_SERVER['SERVER_NAME'] = 'localhost';
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        Yii::$app->request->setBodyParams([
-            'ContactForm' => [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-                'phone' => '(555) 123-4567',
-                'subject' => 'Test Subject',
-                'body' => 'Test body content.',
-                'turnstileToken' => 'test-token',
+        Yii::$app->request->setBodyParams(
+            [
+                'ContactForm' => [
+                    'name' => 'Test User',
+                    'email' => 'test@example.com',
+                    'phone' => '(555) 123-4567',
+                    'subject' => 'Test Subject',
+                    'body' => 'Test body content.',
+                    'turnstileToken' => 'test-token',
+                ],
             ],
-        ]);
+        );
 
         $handler = static function (MailEvent $event): void {
             $event->isValid = false;
@@ -94,6 +98,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
             $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
             Yii::$app->controller = $controller;
+
             $response = $controller->actionContact();
         } finally {
             Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
@@ -119,16 +124,18 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $_SERVER['SERVER_NAME'] = 'localhost';
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        Yii::$app->request->setBodyParams([
-            'ContactForm' => [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-                'phone' => '(555) 123-4567',
-                'subject' => 'Test Subject',
-                'body' => 'Test body content.',
-                'turnstileToken' => 'test-token',
+        Yii::$app->request->setBodyParams(
+            [
+                'ContactForm' => [
+                    'name' => 'Test User',
+                    'email' => 'test@example.com',
+                    'phone' => '(555) 123-4567',
+                    'subject' => 'Test Subject',
+                    'body' => 'Test body content.',
+                    'turnstileToken' => 'test-token',
+                ],
             ],
-        ]);
+        );
 
         $handler = static function (): void {
             throw new RuntimeException('Simulated mailer transport exception.');
@@ -140,6 +147,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
             $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
             Yii::$app->controller = $controller;
+
             $response = $controller->actionContact();
         } finally {
             Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
@@ -165,20 +173,23 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $_SERVER['SERVER_NAME'] = 'localhost';
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        Yii::$app->request->setBodyParams([
-            'ContactForm' => [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-                'phone' => '(555) 123-4567',
-                'subject' => 'Test Subject',
-                'body' => 'Test body content.',
-                'turnstileToken' => 'test-token',
+        Yii::$app->request->setBodyParams(
+            [
+                'ContactForm' => [
+                    'name' => 'Test User',
+                    'email' => 'test@example.com',
+                    'phone' => '(555) 123-4567',
+                    'subject' => 'Test Subject',
+                    'body' => 'Test body content.',
+                    'turnstileToken' => 'test-token',
+                ],
             ],
-        ]);
+        );
 
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
+
         $response = $controller->actionContact();
 
         self::assertNotEmpty(
@@ -193,20 +204,23 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $_SERVER['SERVER_NAME'] = 'localhost';
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        Yii::$app->request->setBodyParams([
-            'ContactForm' => [
-                'name' => '',
-                'email' => '',
-                'phone' => '',
-                'subject' => '',
-                'body' => '',
-                'turnstileToken' => '',
+        Yii::$app->request->setBodyParams(
+            [
+                'ContactForm' => [
+                    'name' => '',
+                    'email' => '',
+                    'phone' => '',
+                    'subject' => '',
+                    'body' => '',
+                    'turnstileToken' => '',
+                ],
             ],
-        ]);
+        );
 
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
+
         $response = $controller->actionContact();
 
         self::assertNotEmpty(
@@ -223,7 +237,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         );
     }
 
-    public function testActionErrorWithGenericException(): void
+    public function testActionErrorHidesNonUserExceptionMessage(): void
     {
         $_SERVER['REQUEST_URI'] = '/site/error';
         $_SERVER['SERVER_NAME'] = 'localhost';
@@ -231,16 +245,38 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
-        Yii::$app->errorHandler->exception = new RuntimeException('Something went wrong');
-        $response = $controller->actionError();
 
-        self::assertNotEmpty(
+        Yii::$app->errorHandler->exception = new RuntimeException('Database connection lost');
+
+        $response = $controller->runAction('error');
+
+        self::assertIsString(
             $response,
-            "Expected 'actionError' to return an instance of Response for generic exception.",
+            'Error view should render as a string.',
+        );
+        self::assertStringContainsString(
+            'Error 500',
+            $response,
+            "Heading should show status '500'.",
+        );
+        self::assertStringContainsString(
+            'An internal server error occurred.',
+            $response,
+            'Generic fallback message should be rendered.',
+        );
+        self::assertStringNotContainsString(
+            'Database connection lost',
+            $response,
+            'Raw Throwable message must not leak to the client.',
+        );
+        self::assertSame(
+            500,
+            Yii::$app->response->statusCode,
+            "HTTP status must default to '500'.",
         );
     }
 
-    public function testActionErrorWithHttpException(): void
+    public function testActionErrorShowsHttpExceptionMessage(): void
     {
         $_SERVER['REQUEST_URI'] = '/site/error';
         $_SERVER['SERVER_NAME'] = 'localhost';
@@ -248,16 +284,38 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
+
         Yii::$app->errorHandler->exception = new HttpException(404, 'Page not found');
-        $response = $controller->actionError();
 
-        self::assertNotEmpty(
+        $response = $controller->runAction('error');
+
+        self::assertIsString(
             $response,
-            "Expected 'actionError' to return an instance of Response for HTTP exception.",
+            'Error view should render as a string.',
+        );
+        self::assertStringContainsString(
+            'Error 404',
+            $response,
+            "Heading should show the HttpException status '404'.",
+        );
+        self::assertStringContainsString(
+            'Page not found',
+            $response,
+            'HttpException message should render verbatim.',
+        );
+        self::assertStringNotContainsString(
+            'An internal server error occurred.',
+            $response,
+            'Generic fallback must not appear when a user-safe message exists.',
+        );
+        self::assertSame(
+            404,
+            Yii::$app->response->statusCode,
+            'HTTP status must match the HttpException code.',
         );
     }
 
-    public function testActionErrorWithNullException(): void
+    public function testActionErrorSynthesizesNotFoundWhenExceptionIsNull(): void
     {
         $_SERVER['REQUEST_URI'] = '/site/error';
         $_SERVER['SERVER_NAME'] = 'localhost';
@@ -265,12 +323,29 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
-        Yii::$app->errorHandler->exception = null;
-        $response = $controller->actionError();
 
-        self::assertNotEmpty(
+        Yii::$app->errorHandler->exception = null;
+
+        $response = $controller->runAction('error');
+
+        self::assertIsString(
             $response,
-            "Expected 'actionError' to return a generic error Response when exception is null.",
+            'Error view should render as a string.',
+        );
+        self::assertStringContainsString(
+            'Error 404',
+            $response,
+            "Heading should show synthesized '404' status.",
+        );
+        self::assertStringContainsString(
+            'Page not found',
+            $response,
+            'Synthesized NotFoundHttpException message should render.',
+        );
+        self::assertSame(
+            404,
+            Yii::$app->response->statusCode,
+            "HTTP status must be '404'.",
         );
     }
 
@@ -282,6 +357,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
         $controller = new SiteController('site', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
+
         $response = $controller->actionIndex();
 
         self::assertNotEmpty(
@@ -293,8 +369,10 @@ final class SiteControllerTest extends \Codeception\Test\Unit
     protected function tearDown(): void
     {
         Yii::$app->request->setBodyParams([]);
+
         Yii::$app->controller = null;
         Yii::$app->errorHandler->exception = null;
+
         Yii::$app->session->removeAllFlashes();
 
         unset(
