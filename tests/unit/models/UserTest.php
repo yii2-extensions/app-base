@@ -49,7 +49,7 @@ final class UserTest extends \Codeception\Test\Unit
             $user?->username,
             "User with ID '1' has username 'admin'.",
         );
-        self::assertEmpty(
+        self::assertNull(
             User::findIdentity(999),
             "User with non-existing ID '999' returns 'null'.",
         );
@@ -82,7 +82,7 @@ final class UserTest extends \Codeception\Test\Unit
             $foundUser?->username,
             "Password reset token resolves to user 'okirlin'.",
         );
-        self::assertEmpty(
+        self::assertNull(
             User::findByPasswordResetToken('notexistingtoken_1391882543'),
             "An invalid 'password reset token' returns 'null'.",
         );
@@ -94,7 +94,7 @@ final class UserTest extends \Codeception\Test\Unit
             User::findByUsername('okirlin'),
             "Active user 'okirlin' is found by username.",
         );
-        self::assertEmpty(
+        self::assertNull(
             User::findByUsername('not-existing'),
             "Non-existing username returns 'null'.",
         );
@@ -125,7 +125,7 @@ final class UserTest extends \Codeception\Test\Unit
             $foundUser?->username,
             "Verification token resolves to user 'test.test'.",
         );
-        self::assertEmpty(
+        self::assertNull(
             User::findByVerificationToken('non_existing_token'),
             "A non-existing verification token returns 'null'.",
         );
