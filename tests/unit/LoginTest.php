@@ -48,7 +48,7 @@ final class LoginTest extends \Codeception\Test\Unit
 
         self::assertNotEmpty(
             $response,
-            'Failed asserting that about action returns a Response instance.',
+            'About action returns a Response instance.',
         );
     }
 
@@ -64,13 +64,14 @@ final class LoginTest extends \Codeception\Test\Unit
         );
 
         Yii::$app->controller = $controller;
+
         Yii::$app->user->logout();
 
         $response = $controller->actionLogin();
 
         self::assertNotEmpty(
             $response,
-            'Failed asserting that login action returns a Response instance for guests.',
+            'Login action returns a Response instance for guests.',
         );
     }
 

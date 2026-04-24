@@ -36,8 +36,10 @@ final class UserSearchTest extends \Codeception\Test\Unit
 
         $rules = $searchModel->rules();
 
-        verify($rules)
-            ->notEmpty();
+        self::assertNotEmpty(
+            $rules,
+            'Must declare at least one validation rule.',
+        );
     }
 
     public function testSearchReturnsDataProvider(): void
@@ -49,11 +51,14 @@ final class UserSearchTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             ActiveDataProvider::class,
             $dataProvider,
-            'Failed asserting that search method returns an instance of ActiveDataProvider.',
+            'Search method returns an instance of ActiveDataProvider.',
         );
 
-        verify($dataProvider->getTotalCount())
-            ->greaterThan(0);
+        self::assertGreaterThan(
+            0,
+            $dataProvider->getTotalCount(),
+            'Unfiltered search must return at least one fixture user.',
+        );
     }
 
     public function testSearchWithInvalidData(): void
@@ -65,11 +70,14 @@ final class UserSearchTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             ActiveDataProvider::class,
             $dataProvider,
-            'Failed asserting that search method returns an instance of ActiveDataProvider.',
+            'Search method returns an instance of ActiveDataProvider.',
         );
 
-        verify($dataProvider->getTotalCount())
-            ->equals(0);
+        self::assertSame(
+            0,
+            $dataProvider->getTotalCount(),
+            'Invalid filter input must produce an empty result set.',
+        );
     }
 
     public function testSearchWithUsernameFilter(): void
@@ -81,7 +89,7 @@ final class UserSearchTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             ActiveDataProvider::class,
             $dataProvider,
-            'Failed asserting that search method returns an instance of ActiveDataProvider.',
+            'Search method returns an instance of ActiveDataProvider.',
         );
 
         $models = $dataProvider->getModels();
@@ -89,12 +97,12 @@ final class UserSearchTest extends \Codeception\Test\Unit
         self::assertCount(
             1,
             $models,
-            "Failed asserting that the username filter returns exactly one record for 'okirlin'.",
+            "Username filter returns exactly one record for 'okirlin'.",
         );
         self::assertContainsOnlyInstancesOf(
             User::class,
             $models,
-            'Failed asserting that all returned models are instances of User.',
+            'All returned models are instances of User.',
         );
 
         $first = reset($models);
@@ -102,12 +110,12 @@ final class UserSearchTest extends \Codeception\Test\Unit
         self::assertInstanceOf(
             User::class,
             $first,
-            'Failed asserting that the first returned model is an instance of User.',
+            'First returned model is an instance of User.',
         );
         self::assertSame(
             'okirlin',
             $first->username,
-            "Failed asserting that the matched record is the 'okirlin' user (LIKE filter could match siblings).",
+            "Matched record is the 'okirlin' user (LIKE filter could match siblings).",
         );
     }
 }

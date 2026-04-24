@@ -29,22 +29,6 @@ final class UserAccessCest
         );
     }
 
-    public function authenticatedUserCannotAccessLogin(AcceptanceTester $I): void
-    {
-        $this->loginAs($I, 'admin');
-
-        $I->amOnRoute('user/login');
-        $I->seeResponseCodeIs(403);
-    }
-
-    public function authenticatedUserCannotAccessSignup(AcceptanceTester $I): void
-    {
-        $this->loginAs($I, 'admin');
-
-        $I->amOnRoute('user/signup');
-        $I->seeResponseCodeIs(403);
-    }
-
     public function authenticatedUserCanReachResetPasswordWithToken(AcceptanceTester $I): void
     {
         $this->loginAs($I, 'admin');
@@ -71,6 +55,26 @@ final class UserAccessCest
         );
         $I->amOnRoute('user/verify-email', ['token' => $owner->verification_token]);
         $I->dontSeeResponseCodeIs(403);
+    }
+
+    public function authenticatedUserIsRedirectedHomeFromLogin(AcceptanceTester $I): void
+    {
+        $this->loginAs($I, 'admin');
+
+        $I->amOnRoute('user/login');
+        $I->seeResponseCodeIs(200);
+        $I->seeInCurrentUrl('/');
+        $I->dontSeeInCurrentUrl('user/login');
+    }
+
+    public function authenticatedUserIsRedirectedHomeFromSignup(AcceptanceTester $I): void
+    {
+        $this->loginAs($I, 'admin');
+
+        $I->amOnRoute('user/signup');
+        $I->seeResponseCodeIs(200);
+        $I->seeInCurrentUrl('/');
+        $I->dontSeeInCurrentUrl('user/signup');
     }
 
     public function getOnConfirmEmailIsRejected(AcceptanceTester $I): void

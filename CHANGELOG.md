@@ -8,4 +8,4 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 - feat: initial `yii2-extensions/app-base` package structure.
 - fix: improve formatting and clarity in `README.md`.
-- refactor: extract `AbstractSiteController` and `AbstractUserController` under `src/controllers/Base/` so overlays can override `render*()` only.
+- refactor: non-final concrete `SiteController`/`UserController` (no abstract base); `site/error` uses `yii\web\ErrorAction`; authed users redirected home from guest-only actions.
