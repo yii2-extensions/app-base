@@ -412,7 +412,12 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
             'Resend regenerates the verification token.',
         );
 
-        /** @var \yii\symfonymailer\Message $mail */
+        self::assertInstanceOf(
+            \yii\symfonymailer\Message::class,
+            $mail,
+            'Mailer must produce a Symfony Message to inspect the text body.',
+        );
+
         $textBody = $mail->getSymfonyEmail()->getTextBody();
 
         self::assertIsString(

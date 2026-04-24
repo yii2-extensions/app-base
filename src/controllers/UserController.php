@@ -96,17 +96,13 @@ class UserController extends Controller
      */
     public function actionLogin(): Response|string
     {
-        if (Yii::$app->user->isGuest === false) {
-            return $this->goHome();
-        }
-
         $model = new LoginForm();
 
         /** @var array<string, mixed> $post */
         $post = $this->request->post();
 
         if ($model->load($post) && $model->login()) {
-            return $this->goHome();
+            return $this->goBack();
         }
 
         if ($this->request->isPost && $model->hasErrors()) {
@@ -137,10 +133,6 @@ class UserController extends Controller
      */
     public function actionRequestPasswordReset(): Response|string
     {
-        if (Yii::$app->user->isGuest === false) {
-            return $this->goHome();
-        }
-
         $model = new PasswordResetRequestForm();
 
         /** @var array<string, mixed> $post */
@@ -179,10 +171,6 @@ class UserController extends Controller
      */
     public function actionResendVerificationEmail(): Response|string
     {
-        if (Yii::$app->user->isGuest === false) {
-            return $this->goHome();
-        }
-
         $model = new ResendVerificationEmailForm();
 
         /** @var array<string, mixed> $post */
@@ -271,10 +259,6 @@ class UserController extends Controller
      */
     public function actionSignup(): Response|string
     {
-        if (Yii::$app->user->isGuest === false) {
-            return $this->goHome();
-        }
-
         $model = new SignupForm();
 
         /** @var array<string, mixed> $post */
@@ -352,6 +336,19 @@ class UserController extends Controller
                     'verify-email',
                 ],
                 'rules' => [
+                    [
+                        'actions' => [
+                            'login',
+                            'request-password-reset',
+                            'resend-verification-email',
+                            'signup',
+                        ],
+                        'allow' => false,
+                        'roles' => ['@'],
+                        'denyCallback' => static function (): void {
+                            Yii::$app->getResponse()->redirect(Yii::$app->getHomeUrl());
+                        },
+                    ],
                     [
                         'actions' => [
                             'login',

@@ -38,17 +38,17 @@ final class VerifyEmailFormTest extends \Codeception\Test\Unit
     {
         $user = User::findOne(['username' => 'test2.test']);
 
-        self::assertNotEmpty(
+        self::assertInstanceOf(
+            User::class,
             $user,
             "Fixture user 'test2.test' exists.",
         );
-        self::assertNotEmpty(
-            $user->verification_token ?? null,
+        self::assertNotNull(
+            $user->verification_token,
             "Fixture user 'test2.test' has a verification token.",
         );
 
-        /** @var string $token */
-        $token = $user->verification_token ?? '';
+        $token = $user->verification_token;
 
         self::assertInstanceOf(
             UnitTester::class,

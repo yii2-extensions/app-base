@@ -54,7 +54,7 @@ final class ResetPasswordFormTest extends \Codeception\Test\Unit
 
         $form->password = 'new_password_123';
 
-        self::assertNotEmpty(
+        self::assertTrue(
             $form->resetPassword(),
             'Password reset must succeed with a valid token and password.',
         );

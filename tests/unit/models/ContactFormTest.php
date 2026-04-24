@@ -7,7 +7,6 @@ namespace app\tests\unit\models;
 use app\models\ContactForm;
 use app\tests\support\UnitTester;
 use Yii;
-use yii\mail\MessageInterface;
 use yii\symfonymailer\Message;
 
 /**
@@ -51,13 +50,12 @@ final class ContactFormTest extends \Codeception\Test\Unit
 
         $this->tester->seeEmailIsSent();
 
-        /** @var Message $emailMessage */
         $emailMessage = $this->tester->grabLastSentEmail();
 
         self::assertInstanceOf(
-            MessageInterface::class,
+            Message::class,
             $emailMessage,
-            'A contact email was captured.',
+            'Mailer must produce a Symfony Message to inspect the contact email.',
         );
 
         $to = $emailMessage->getTo();

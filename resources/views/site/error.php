@@ -12,7 +12,7 @@ use yii\web\HttpException;
  * @var \yii\web\View $this View component instance.
  */
 
-$code = $exception instanceof HttpException ? $exception->statusCode : ($exception->getCode() ?: 500);
+$code = $exception instanceof HttpException ? $exception->statusCode : 500;
 
 $this->title = "Error {$code}";
 ?>

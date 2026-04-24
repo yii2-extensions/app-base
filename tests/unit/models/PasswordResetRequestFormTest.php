@@ -11,7 +11,7 @@ use RuntimeException;
 use Yii;
 use yii\base\{Event, ModelEvent};
 use yii\db\BaseActiveRecord;
-use yii\mail\{BaseMailer, MailEvent, MessageInterface};
+use yii\mail\{BaseMailer, MailEvent};
 use yii\symfonymailer\Message;
 
 /**
@@ -329,13 +329,12 @@ final class PasswordResetRequestFormTest extends \Codeception\Test\Unit
             'Tester instance is available.',
         );
 
-        /** @var MessageInterface $emailMessage */
         $emailMessage = $this->tester->grabLastSentEmail();
 
         self::assertInstanceOf(
-            MessageInterface::class,
+            Message::class,
             $emailMessage,
-            'A reset email was captured.',
+            'Mailer must produce a Symfony Message to inspect the reset email.',
         );
 
         $to = $emailMessage->getTo();
@@ -360,7 +359,6 @@ final class PasswordResetRequestFormTest extends \Codeception\Test\Unit
             'Email is sent from the support address.',
         );
 
-        /** @var Message $emailMessage */
         $body = $emailMessage->getSymfonyEmail()->getHtmlBody() . $emailMessage->getSymfonyEmail()->getTextBody();
 
         self::assertNotNull(
@@ -368,7 +366,6 @@ final class PasswordResetRequestFormTest extends \Codeception\Test\Unit
             'User has a password reset token.',
         );
 
-        /** @var string $token */
         $token = $user->password_reset_token;
 
         self::assertStringContainsString(

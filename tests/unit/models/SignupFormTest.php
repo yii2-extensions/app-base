@@ -130,7 +130,12 @@ final class SignupFormTest extends \Codeception\Test\Unit
             'Email subject matches the registration template.',
         );
 
-        /** @var Message $mail */
+        self::assertInstanceOf(
+            Message::class,
+            $mail,
+            'Mailer must produce a Symfony Message to inspect the text body.',
+        );
+
         $textBody = $mail->getSymfonyEmail()->getTextBody();
 
         self::assertIsString(

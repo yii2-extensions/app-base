@@ -191,6 +191,41 @@ final class UserControllerTest extends \Codeception\Test\Unit
         );
     }
 
+    public function testActionLoginPostSuccessHonorsReturnUrl(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user/login';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        Yii::$app->request->setBodyParams(
+            [
+                'LoginForm' => [
+                    'username' => 'admin',
+                    'password' => 'password_0',
+                ],
+            ],
+        );
+
+        Yii::$app->user->setReturnUrl('/user/index');
+
+        $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
+
+        Yii::$app->controller = $controller;
+
+        $response = $controller->actionLogin();
+
+        self::assertInstanceOf(
+            Response::class,
+            $response,
+            'Successful login must return a redirect Response.',
+        );
+        self::assertStringEndsWith(
+            '/user/index',
+            (string) $response->headers->get('Location'),
+            'Login must redirect to the saved `returnUrl` instead of the home page.',
+        );
+    }
+
     public function testActionLoginPostValidationErrors(): void
     {
         $_SERVER['REQUEST_URI'] = '/user/login';
@@ -237,16 +272,25 @@ final class UserControllerTest extends \Codeception\Test\Unit
 
         Yii::$app->controller = $controller;
 
-        $response = $controller->actionLogin();
+        $result = $controller->runAction('login');
 
-        self::assertInstanceOf(
-            Response::class,
-            $response,
-            'Guard should return a redirect Response.',
+        self::assertNull(
+            $result,
+            'Access control must short-circuit before the action body runs.',
+        );
+        self::assertSame(
+            302,
+            Yii::$app->response->statusCode,
+            "Deny callback must set a '302' redirect status.",
+        );
+        self::assertSame(
+            'http://localhost/',
+            Yii::$app->response->headers->get('Location'),
+            'Deny callback must redirect to the home URL.',
         );
         self::assertFalse(
             Yii::$app->user->isGuest,
-            'Guard must not log the user out.',
+            'denyCallback must not log the user out.',
         );
     }
 
@@ -435,16 +479,25 @@ final class UserControllerTest extends \Codeception\Test\Unit
 
         Yii::$app->controller = $controller;
 
-        $response = $controller->actionRequestPasswordReset();
+        $result = $controller->runAction('request-password-reset');
 
-        self::assertInstanceOf(
-            Response::class,
-            $response,
-            'Guard should return a redirect Response.',
+        self::assertNull(
+            $result,
+            'Access control must short-circuit before the action body runs.',
+        );
+        self::assertSame(
+            302,
+            Yii::$app->response->statusCode,
+            "Deny callback must set a '302' redirect status.",
+        );
+        self::assertSame(
+            'http://localhost/',
+            Yii::$app->response->headers->get('Location'),
+            'Deny callback must redirect to the home URL.',
         );
         self::assertFalse(
             Yii::$app->user->isGuest,
-            'Guard must not log the user out.',
+            'Deny callback must not log the user out.',
         );
     }
 
@@ -615,16 +668,22 @@ final class UserControllerTest extends \Codeception\Test\Unit
 
         Yii::$app->controller = $controller;
 
-        $response = $controller->actionResendVerificationEmail();
+        $result = $controller->runAction('resend-verification-email');
 
-        self::assertInstanceOf(
-            Response::class,
-            $response,
-            'Guard should return a redirect Response.',
+        self::assertNull($result, 'AccessControl must short-circuit before the action body runs.');
+        self::assertSame(
+            302,
+            Yii::$app->response->statusCode,
+            "Deny callback must set a '302' redirect status.",
+        );
+        self::assertSame(
+            'http://localhost/',
+            Yii::$app->response->headers->get('Location'),
+            'Deny callback must redirect to the home URL.',
         );
         self::assertFalse(
             Yii::$app->user->isGuest,
-            'Guard must not log the user out.',
+            'Deny callback must not log the user out.',
         );
     }
 
@@ -871,6 +930,7 @@ final class UserControllerTest extends \Codeception\Test\Unit
         $controller = new UserController('user', Yii::$app, Yii::$app->mailer);
 
         Yii::$app->controller = $controller;
+
         $response = $controller->actionSignup();
 
         self::assertNotEmpty(
@@ -992,16 +1052,25 @@ final class UserControllerTest extends \Codeception\Test\Unit
 
         Yii::$app->controller = $controller;
 
-        $response = $controller->actionSignup();
+        $result = $controller->runAction('signup');
 
-        self::assertInstanceOf(
-            Response::class,
-            $response,
-            'Guard should return a redirect Response.',
+        self::assertNull(
+            $result,
+            'Access control must short-circuit before the action body runs.',
+        );
+        self::assertSame(
+            302,
+            Yii::$app->response->statusCode,
+            "Deny callback must set a '302' redirect status.",
+        );
+        self::assertSame(
+            'http://localhost/',
+            Yii::$app->response->headers->get('Location'),
+            'Deny callback must redirect to the home URL.',
         );
         self::assertFalse(
             Yii::$app->user->isGuest,
-            'Guard must not log the user out.',
+            'Deny callback must not log the user out.',
         );
     }
 
