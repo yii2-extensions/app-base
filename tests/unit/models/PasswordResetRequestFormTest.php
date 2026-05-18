@@ -7,6 +7,7 @@ namespace app\tests\unit\models;
 use app\models\{PasswordResetRequestForm, User};
 use app\tests\support\fixtures\UserFixture;
 use app\tests\support\UnitTester;
+use Codeception\Test\Unit;
 use RuntimeException;
 use Yii;
 use yii\base\{Event, ModelEvent};
@@ -20,7 +21,7 @@ use yii\symfonymailer\Message;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class PasswordResetRequestFormTest extends \Codeception\Test\Unit
+final class PasswordResetRequestFormTest extends Unit
 {
     protected UnitTester|null $tester = null;
 
@@ -63,7 +64,7 @@ final class PasswordResetRequestFormTest extends \Codeception\Test\Unit
         );
 
         // okirlin has a valid (non-expired) token — token-regeneration block is skipped ($transaction=null).
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Simulated mailer transport failure.');
         };
 
@@ -107,7 +108,7 @@ final class PasswordResetRequestFormTest extends \Codeception\Test\Unit
             'Expired token was persisted.',
         );
 
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Simulated mailer failure with active transaction.');
         };
 
@@ -147,7 +148,7 @@ final class PasswordResetRequestFormTest extends \Codeception\Test\Unit
             'Expired token was persisted.',
         );
 
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Simulated DB failure during token regeneration.');
         };
 

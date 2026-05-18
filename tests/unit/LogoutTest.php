@@ -7,6 +7,7 @@ namespace app\tests\unit;
 use app\controllers\UserController;
 use app\models\User;
 use app\tests\support\fixtures\UserFixture;
+use Codeception\Test\Unit;
 use Yii;
 use yii\web\{IdentityInterface, Response};
 
@@ -16,7 +17,7 @@ use yii\web\{IdentityInterface, Response};
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class LogoutTest extends \Codeception\Test\Unit
+final class LogoutTest extends Unit
 {
     /**
      * @return array{user: array{class: string, dataFile: string}}

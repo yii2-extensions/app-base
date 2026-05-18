@@ -6,6 +6,7 @@ namespace app\tests\unit\models;
 
 use app\models\LoginForm;
 use app\tests\support\fixtures\UserFixture;
+use Codeception\Test\Unit;
 use Yii;
 use yii\log\Logger;
 
@@ -18,7 +19,7 @@ use function is_string;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class LoginFormTest extends \Codeception\Test\Unit
+final class LoginFormTest extends Unit
 {
     /**
      * @return array{user: array{class: string, dataFile: string}}

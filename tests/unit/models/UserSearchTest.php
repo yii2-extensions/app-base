@@ -6,6 +6,7 @@ namespace app\tests\unit\models;
 
 use app\models\{User, UserSearch};
 use app\tests\support\fixtures\UserFixture;
+use Codeception\Test\Unit;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -14,7 +15,7 @@ use yii\data\ActiveDataProvider;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class UserSearchTest extends \Codeception\Test\Unit
+final class UserSearchTest extends Unit
 {
     /**
      * @return array{user: array{class: string, dataFile: string}}

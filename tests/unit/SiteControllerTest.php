@@ -6,6 +6,7 @@ namespace app\tests\unit;
 
 use app\controllers\SiteController;
 use app\tests\support\fixtures\UserFixture;
+use Codeception\Test\Unit;
 use RuntimeException;
 use Yii;
 use yii\mail\{BaseMailer, MailEvent};
@@ -17,7 +18,7 @@ use yii\web\HttpException;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class SiteControllerTest extends \Codeception\Test\Unit
+final class SiteControllerTest extends Unit
 {
     /**
      * @return array{user: array{class: string, dataFile: string}}
@@ -137,7 +138,7 @@ final class SiteControllerTest extends \Codeception\Test\Unit
             ],
         );
 
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Simulated mailer transport exception.');
         };
 
