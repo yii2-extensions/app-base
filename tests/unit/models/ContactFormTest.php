@@ -6,6 +6,7 @@ namespace app\tests\unit\models;
 
 use app\models\ContactForm;
 use app\tests\support\UnitTester;
+use Codeception\Test\Unit;
 use Yii;
 use yii\symfonymailer\Message;
 
@@ -15,7 +16,7 @@ use yii\symfonymailer\Message;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class ContactFormTest extends \Codeception\Test\Unit
+final class ContactFormTest extends Unit
 {
     public UnitTester|null $tester = null;
 

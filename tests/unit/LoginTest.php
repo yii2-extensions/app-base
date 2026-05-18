@@ -6,6 +6,7 @@ namespace app\tests\unit;
 
 use app\controllers\{SiteController, UserController};
 use app\tests\support\fixtures\UserFixture;
+use Codeception\Test\Unit;
 use Yii;
 
 /**
@@ -15,7 +16,7 @@ use Yii;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class LoginTest extends \Codeception\Test\Unit
+final class LoginTest extends Unit
 {
     /**
      * @return array{user: array{class: string, dataFile: string}}

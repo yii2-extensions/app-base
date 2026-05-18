@@ -7,6 +7,7 @@ namespace app\tests\unit\models;
 use app\models\{SignupForm, User};
 use app\tests\support\fixtures\UserFixture;
 use app\tests\support\UnitTester;
+use Codeception\Test\Unit;
 use RuntimeException;
 use Yii;
 use yii\base\{Event, ModelEvent};
@@ -20,7 +21,7 @@ use yii\symfonymailer\Message;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class SignupFormTest extends \Codeception\Test\Unit
+final class SignupFormTest extends Unit
 {
     protected UnitTester|null $tester = null;
 
@@ -253,7 +254,7 @@ final class SignupFormTest extends \Codeception\Test\Unit
 
     public function testSignupRollsBackTransactionWhenUserSaveThrows(): void
     {
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Database failure during user save');
         };
 
@@ -286,7 +287,7 @@ final class SignupFormTest extends \Codeception\Test\Unit
 
     public function testThrowRuntimeExceptionWhenMailerFailsDuringSignup(): void
     {
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Mailer transport failure');
         };
 

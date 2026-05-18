@@ -6,6 +6,7 @@ namespace app\tests\unit\models;
 
 use app\models\ContactForm;
 use Codeception\Stub;
+use Codeception\Test\Unit;
 use Yii;
 
 /**
@@ -14,7 +15,7 @@ use Yii;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class ContactFormValidateTurnstileTest extends \Codeception\Test\Unit
+final class ContactFormValidateTurnstileTest extends Unit
 {
     public function testValidateTurnstileSkipsWhenModelHasErrors(): void
     {

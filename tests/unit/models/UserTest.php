@@ -7,6 +7,7 @@ namespace app\tests\unit\models;
 use app\models\User;
 use app\tests\support\fixtures\UserFixture;
 use app\tests\support\UnitTester;
+use Codeception\Test\Unit;
 use Yii;
 use yii\base\NotSupportedException;
 
@@ -18,7 +19,7 @@ use function strlen;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class UserTest extends \Codeception\Test\Unit
+final class UserTest extends Unit
 {
     protected UnitTester|null $tester = null;
 
@@ -312,7 +313,7 @@ final class UserTest extends \Codeception\Test\Unit
 
         $this->tester->expectThrowable(
             NotSupportedException::class,
-            static function (): void {
+            static function (): never {
                 User::findIdentityByAccessToken('any-token');
             },
         );

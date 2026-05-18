@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+use yii\console\Application;
+use yii\console\controllers\MigrateController;
+
 defined('YII_DEBUG') || define('YII_DEBUG', true);
 defined('YII_ENV') || define('YII_ENV', 'test');
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 // Run migrations on the test database.
-$app = new yii\console\Application(
+$app = new Application(
     [
         'id' => 'app-base-test-migrate',
         'basePath' => dirname(__DIR__),
@@ -17,7 +20,7 @@ $app = new yii\console\Application(
         'params' => require dirname(__DIR__) . '/config/params.php',
         'controllerMap' => [
             'migrate' => [
-                'class' => yii\console\controllers\MigrateController::class,
+                'class' => MigrateController::class,
                 'migrationNamespaces' => ['app\\migrations'],
                 'migrationPath' => null,
                 'interactive' => false,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\tests\unit\migrations;
 
 use app\migrations\M260330000000CreateUserTable;
+use Codeception\Test\Unit;
 use Yii;
 
 /**
@@ -13,7 +14,7 @@ use Yii;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class CreateUserTableTest extends \Codeception\Test\Unit
+final class CreateUserTableTest extends Unit
 {
     public function testSafeDownDropsUserTable(): void
     {

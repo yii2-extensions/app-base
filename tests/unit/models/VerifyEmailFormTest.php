@@ -7,6 +7,7 @@ namespace app\tests\unit\models;
 use app\models\{User, VerifyEmailForm};
 use app\tests\support\fixtures\UserFixture;
 use app\tests\support\UnitTester;
+use Codeception\Test\Unit;
 use ReflectionProperty;
 use yii\base\InvalidArgumentException;
 
@@ -16,7 +17,7 @@ use yii\base\InvalidArgumentException;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class VerifyEmailFormTest extends \Codeception\Test\Unit
+final class VerifyEmailFormTest extends Unit
 {
     protected UnitTester|null $tester = null;
 

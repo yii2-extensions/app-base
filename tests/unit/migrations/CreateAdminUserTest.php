@@ -6,6 +6,7 @@ namespace app\tests\unit\migrations;
 
 use app\migrations\M260403000000CreateAdminUser;
 use app\models\User;
+use Codeception\Test\Unit;
 use Yii;
 
 /**
@@ -14,7 +15,7 @@ use Yii;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class CreateAdminUserTest extends \Codeception\Test\Unit
+final class CreateAdminUserTest extends Unit
 {
     public function testSafeDownDeletesAdminUser(): void
     {

@@ -7,11 +7,14 @@ namespace app\tests\unit\models;
 use app\models\{ResendVerificationEmailForm, User};
 use app\tests\support\fixtures\UserFixture;
 use app\tests\support\UnitTester;
+use Codeception\Test\Unit;
 use RuntimeException;
 use Yii;
 use yii\base\{Event, ModelEvent};
+use yii\caching\ArrayCache;
 use yii\db\BaseActiveRecord;
-use yii\mail\MessageInterface;
+use yii\mail\{BaseMailer, MailEvent, MessageInterface};
+use yii\symfonymailer\Message;
 
 /**
  * Unit tests for {@see \app\models\ResendVerificationEmailForm} model.
@@ -19,7 +22,7 @@ use yii\mail\MessageInterface;
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
  * @since 0.1
  */
-final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
+final class ResendVerificationEmailFormTest extends Unit
 {
     protected UnitTester|null $tester = null;
 
@@ -70,7 +73,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $originalToken = $fixtureUser->verification_token;
 
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Forced exception during user save.');
         };
 
@@ -154,7 +157,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
     public function testRateLimitFailsOpenWhenCacheBackendWriteFails(): void
     {
-        $failingCache = new class extends \yii\caching\ArrayCache {
+        $failingCache = new class extends ArrayCache {
             public function add($key, $value, $duration = 0, $dependency = null)
             {
                 return false;
@@ -413,7 +416,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
         );
 
         self::assertInstanceOf(
-            \yii\symfonymailer\Message::class,
+            Message::class,
             $mail,
             'Mailer must produce a Symfony Message to inspect the text body.',
         );
@@ -433,11 +436,11 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
     public function testThrowRuntimeExceptionWhenMailerFailsDuringSendEmail(): void
     {
-        $handler = static function (): void {
+        $handler = static function (): never {
             throw new RuntimeException('Mailer transport failure');
         };
 
-        Yii::$app->mailer->on(\yii\mail\BaseMailer::EVENT_BEFORE_SEND, $handler);
+        Yii::$app->mailer->on(BaseMailer::EVENT_BEFORE_SEND, $handler);
 
         $model = new ResendVerificationEmailForm();
 
@@ -451,7 +454,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
                 "SendEmail returns 'false' when mailer throws exception.",
             );
         } finally {
-            Yii::$app->mailer->off(\yii\mail\BaseMailer::EVENT_BEFORE_SEND, $handler);
+            Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
         }
 
         $user = User::findOne(['username' => 'test.test']);
@@ -479,11 +482,11 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
 
         $originalToken = $fixtureUser->verification_token;
 
-        $handler = static function (\yii\mail\MailEvent $event): void {
+        $handler = static function (MailEvent $event): void {
             $event->isValid = false;
         };
 
-        Yii::$app->mailer->on(\yii\mail\BaseMailer::EVENT_BEFORE_SEND, $handler);
+        Yii::$app->mailer->on(BaseMailer::EVENT_BEFORE_SEND, $handler);
 
         $model = new ResendVerificationEmailForm();
 
@@ -497,7 +500,7 @@ final class ResendVerificationEmailFormTest extends \Codeception\Test\Unit
                 "SendEmail returns 'false' when mailer send returns 'false'.",
             );
         } finally {
-            Yii::$app->mailer->off(\yii\mail\BaseMailer::EVENT_BEFORE_SEND, $handler);
+            Yii::$app->mailer->off(BaseMailer::EVENT_BEFORE_SEND, $handler);
         }
 
         $user = User::findOne(['username' => 'test.test']);
