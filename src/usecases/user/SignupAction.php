@@ -12,7 +12,7 @@ use yii\web\{Action, Response};
 
 /**
  * Registers a new account through {@see SignupForm} and dispatches the verification email through the configured
- * {@see MailerInterface}. Gated to anonymous visitors via {@see GuestOnlyActionBehaviors}.
+ * {@see MailerInterface}.
  *
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
@@ -66,7 +66,10 @@ final class SignupAction extends Action
             }
 
             if ($model->hasErrors()) {
-                Yii::$app->session->setFlash('errors', $model->getErrors());
+                Yii::$app->session->setFlash(
+                    'errors',
+                    $model->getErrors(),
+                );
             } else {
                 Yii::$app->session->setFlash(
                     'error',

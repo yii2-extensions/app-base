@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\usecases\user;
 
+use app\usecases\shared\filters\CsrfValidationFilter;
 use app\usecases\shared\view\ViewRendererInterface;
 use Throwable;
 use Yii;
@@ -26,6 +27,16 @@ final class ResetPasswordAction extends Action
     public function __construct(private readonly ViewRendererInterface $view)
     {
         parent::__construct();
+    }
+
+    /**
+     * Validates the CSRF token on `POST`.
+     */
+    public function behaviors(): array
+    {
+        return [
+            'csrf' => CsrfValidationFilter::class,
+        ];
     }
 
     /**
@@ -62,13 +73,19 @@ final class ResetPasswordAction extends Action
             }
 
             if ($saved) {
-                Yii::$app->session->setFlash('success', 'New password saved.');
+                Yii::$app->session->setFlash(
+                    'success',
+                    'New password saved.',
+                );
 
                 return Yii::$app->response->redirect(Yii::$app->homeUrl);
             }
 
             if ($model->hasErrors()) {
-                Yii::$app->session->setFlash('errors', $model->getErrors());
+                Yii::$app->session->setFlash(
+                    'errors',
+                    $model->getErrors(),
+                );
             } else {
                 Yii::$app->session->setFlash(
                     'error',

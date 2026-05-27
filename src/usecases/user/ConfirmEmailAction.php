@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\usecases\user;
 
+use app\usecases\shared\filters\CsrfValidationFilter;
 use app\usecases\shared\user\VerifyEmailForm;
 use Yii;
 use yii\base\InvalidArgumentException;
@@ -22,7 +23,7 @@ use yii\web\{Action, BadRequestHttpException, Response};
 final class ConfirmEmailAction extends Action
 {
     /**
-     * Restricts the action to POST requests.
+     * Restricts the action to POST requests and validates the CSRF token.
      */
     public function behaviors(): array
     {
@@ -31,6 +32,7 @@ final class ConfirmEmailAction extends Action
                 'class' => VerbFilter::class,
                 'actions' => ['*' => ['POST']],
             ],
+            'csrf' => CsrfValidationFilter::class,
         ];
     }
 
@@ -52,7 +54,10 @@ final class ConfirmEmailAction extends Action
         }
 
         if ($model->verifyEmail() !== null) {
-            Yii::$app->session->setFlash('success', 'Your email has been confirmed!');
+            Yii::$app->session->setFlash(
+                'success',
+                'Your email has been confirmed!',
+            );
 
             return Yii::$app->response->redirect(Yii::$app->homeUrl);
         }

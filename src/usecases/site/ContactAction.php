@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\usecases\site;
 
+use app\usecases\shared\filters\CsrfValidationFilter;
 use app\usecases\shared\view\ViewRendererInterface;
 use Throwable;
 use Yii;
@@ -24,6 +25,16 @@ final class ContactAction extends Action
         private readonly MailerInterface $mailer,
     ) {
         parent::__construct();
+    }
+
+    /**
+     * Validates the CSRF token on `POST`.
+     */
+    public function behaviors(): array
+    {
+        return [
+            'csrf' => CsrfValidationFilter::class,
+        ];
     }
 
     public function run(): Response|string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\usecases\user;
 
+use app\usecases\shared\filters\CsrfValidationFilter;
 use Yii;
 use yii\filters\{AccessControl, VerbFilter};
 use yii\web\{Action, Response};
@@ -17,7 +18,7 @@ use yii\web\{Action, Response};
 final class LogoutAction extends Action
 {
     /**
-     * Restricts the action to authenticated users (`@`) and to POST requests.
+     * Restricts the action to authenticated users (`@`) and POST requests, and validates the CSRF token.
      */
     public function behaviors(): array
     {
@@ -30,6 +31,7 @@ final class LogoutAction extends Action
                 'class' => VerbFilter::class,
                 'actions' => ['*' => ['POST']],
             ],
+            'csrf' => CsrfValidationFilter::class,
         ];
     }
 
