@@ -29,7 +29,8 @@ final class HomeActionTest extends Unit
             $response,
             'Body must be non-empty.',
         );
-        self::assertIsString($response,
+        self::assertIsString(
+            $response,
             'Body must render as a string.',
         );
         self::assertStringContainsString(

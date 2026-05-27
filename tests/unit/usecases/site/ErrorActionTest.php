@@ -56,6 +56,39 @@ final class ErrorActionTest extends Unit
         );
     }
 
+    public function testActionErrorReturnsPlainTextForAjaxRequest(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/site/error';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+
+        Yii::$app->errorHandler->exception = new HttpException(404, 'Page not found');
+
+        $action = new ErrorAction(new PhpViewRenderer());
+
+        $response = $action->run();
+
+        self::assertIsString(
+            $response,
+            'AJAX body must be a plain string.',
+        );
+        self::assertStringContainsString(
+            'Page not found',
+            $response,
+            'AJAX body must include the message.',
+        );
+        self::assertStringNotContainsString(
+            '<!DOCTYPE html>',
+            $response,
+            'AJAX body must bypass the layout.',
+        );
+        self::assertSame(
+            404,
+            Yii::$app->response->statusCode,
+            'Status must match the HttpException code.',
+        );
+    }
+
     public function testActionErrorShowsHttpExceptionMessage(): void
     {
         $_SERVER['REQUEST_URI'] = '/site/error';
@@ -130,7 +163,7 @@ final class ErrorActionTest extends Unit
         Yii::$app->errorHandler->exception = null;
         Yii::$app->response->statusCode = 200;
 
-        unset($_SERVER['REQUEST_URI'], $_SERVER['SERVER_NAME']);
+        unset($_SERVER['REQUEST_URI'], $_SERVER['SERVER_NAME'], $_SERVER['HTTP_X_REQUESTED_WITH']);
 
         parent::tearDown();
     }
