@@ -78,4 +78,15 @@ $config = [
     'viewPath' => '@app/resources/views',
 ];
 
+if (YII_ENV === 'dev') {
+    $config['bootstrap'][] = 'debug';
+    $config['modules'] = [
+        'debug' => [
+            'class' => \yii\debug\Module::class,
+            // uncomment the following to add your IP if you are not connecting from localhost.
+            //'allowedIPs' => ['127.0.0.1', '::1'],
+        ],
+    ];
+}
+
 return $config;
