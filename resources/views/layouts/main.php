@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 use yii\helpers\{Html, Url};
+use yii\web\View;
 
 /**
  * @var string $content Inner view content to render inside the layout.
- * @var \yii\web\View $this View component instance.
+ * @var View $this View component instance.
  */
 $session = Yii::$app->session;
 ?>
@@ -22,17 +23,17 @@ $session = Yii::$app->session;
 <body>
 <?php $this->beginBody() ?>
 <nav>
-    <a href="<?= Url::to(['site/index']) ?>"><?= Html::encode(Yii::$app->name) ?></a>
-    <a href="<?= Url::to(['site/about']) ?>">About</a>
-    <a href="<?= Url::to(['site/contact']) ?>">Contact</a>
+    <a href="<?= Url::to(['/site/home']) ?>"><?= Html::encode(Yii::$app->name) ?></a>
+    <a href="<?= Url::to(['/site/about']) ?>">About</a>
+    <a href="<?= Url::to(['/site/contact']) ?>">Contact</a>
     <?php if (Yii::$app->user->isGuest) { ?>
-        <a href="<?= Url::to(['user/signup']) ?>">Sign up</a>
-        <a href="<?= Url::to(['user/login']) ?>">Login</a>
+        <a href="<?= Url::to(['/user/signup']) ?>">Sign up</a>
+        <a href="<?= Url::to(['/user/login']) ?>">Login</a>
     <?php } else { ?>
         <?php if (Yii::$app->user->can('viewUsers')) { ?>
-            <a href="<?= Url::to(['user/index']) ?>">Users</a>
+            <a href="<?= Url::to(['/user/index']) ?>">Users</a>
         <?php } ?>
-        <?= Html::beginForm(['user/logout'], 'post') ?>
+        <?= Html::beginForm(['/user/logout'], 'post') ?>
         <?= Html::submitButton('Logout') ?>
         <?= Html::endForm() ?>
     <?php } ?>
@@ -61,4 +62,4 @@ if (is_array($errorBag) && $errorBag !== []) { ?>
 <?php $this->endBody() ?>
 </body>
 </html>
-<?php $this->endPage() ?>
+<?php $this->endPage();

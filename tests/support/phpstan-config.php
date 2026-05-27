@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use app\models\User;
+use app\usecases\shared\user\User;
 use yii\caching\FileCache;
 use yii\log\FileTarget;
 use yii\symfonymailer\Mailer;
@@ -14,7 +14,7 @@ return [
         'application_type' => Application::class,
     ],
     'basePath' => dirname(__DIR__, 2),
-    'controllerNamespace' => 'app\\controllers',
+    'actionNamespace' => 'app\\usecases',
     'components' => [
         'cache' => [
             'class' => FileCache::class,

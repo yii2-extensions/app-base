@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use app\models\User;
+use app\usecases\shared\user\User;
+use app\usecases\shared\view\{PhpViewRenderer, ViewRendererInterface};
 use app\tests\support\MailerBootstrap;
 use yii\caching\FileCache;
 use yii\rbac\PhpManager;
@@ -49,10 +50,16 @@ return [
         ],
         'user' => [
             'identityClass' => User::class,
-            'loginUrl' => ['user/login'],
+            'loginUrl' => ['/user/login'],
         ],
     ],
-    'controllerNamespace' => 'app\\controllers',
+    'container' => [
+        'definitions' => [
+            ViewRendererInterface::class => PhpViewRenderer::class,
+        ],
+    ],
+    'actionNamespace' => 'app\\usecases',
+    'defaultRoute' => 'site/home',
     'language' => 'en-US',
     'params' => [...$params, 'turnstile.secretKey' => ''],
 ];

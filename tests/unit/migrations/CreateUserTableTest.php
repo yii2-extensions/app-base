@@ -11,8 +11,8 @@ use Yii;
 /**
  * Unit tests for {@see \app\migrations\M260330000000CreateUserTable} migration.
  *
- * @author Wilmer Arambula <terabytesoftw@gmail.com>
- * @since 0.1
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class CreateUserTableTest extends Unit
 {
@@ -91,13 +91,11 @@ final class CreateUserTableTest extends Unit
             );
         }
 
-        // verify primary key.
         self::assertSame(
             ['id'],
             $tableSchema->primaryKey,
             "Primary key is 'id'.",
         );
-        // verify NOT NULL constraints.
         self::assertFalse(
             $columns['username']->allowNull ?? true,
             "User name is 'NOT NULL'.",
@@ -126,7 +124,6 @@ final class CreateUserTableTest extends Unit
             $columns['updated_at']->allowNull ?? true,
             "Updated at is 'NOT NULL'.",
         );
-        // verify nullable token columns.
         self::assertTrue(
             $columns['password_reset_token']->allowNull ?? false,
             "Password reset token is 'nullable'.",
@@ -135,7 +132,6 @@ final class CreateUserTableTest extends Unit
             $columns['verification_token']->allowNull ?? false,
             "Verification token is 'nullable'.",
         );
-        // verify status defaults to inactive (`9`).
         self::assertEquals(
             9,
             $columns['status']->defaultValue ?? null,

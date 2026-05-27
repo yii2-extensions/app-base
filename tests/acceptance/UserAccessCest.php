@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace app\tests\acceptance;
 
-use app\models\User;
 use app\tests\support\AcceptanceTester;
 use app\tests\support\fixtures\UserFixture;
+use app\usecases\shared\user\User;
 
 /**
- * Acceptance tests for {@see \app\controllers\UserController} `behaviors()` pipeline.
+ * Acceptance tests for the user-area access control and verb constraints across standalone action slices.
  *
- * @author Wilmer Arambula <terabytesoftw@gmail.com>
- * @since 0.1
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class UserAccessCest
 {

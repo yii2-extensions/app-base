@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use app\models\User;
+use app\usecases\shared\user\User;
+use app\usecases\shared\view\{PhpViewRenderer, ViewRendererInterface};
 use yii\caching\FileCache;
 use yii\log\FileTarget;
 use yii\mail\MailerInterface;
@@ -55,10 +56,13 @@ $config = [
         'user' => [
             'enableAutoLogin' => true,
             'identityClass' => User::class,
-            'loginUrl' => ['user/login'],
+            'loginUrl' => ['/user/login'],
         ],
     ],
     'container' => [
+        'definitions' => [
+            ViewRendererInterface::class => PhpViewRenderer::class,
+        ],
         'singletons' => [
             MailerInterface::class => [
                 'class' => Mailer::class,
@@ -68,7 +72,8 @@ $config = [
             ],
         ],
     ],
-    'controllerNamespace' => 'app\\controllers',
+    'actionNamespace' => 'app\\usecases',
+    'defaultRoute' => 'site/home',
     'params' => $params,
     'viewPath' => '@app/resources/views',
 ];

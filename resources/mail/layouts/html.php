@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use yii\helpers\Html;
+use yii\mail\MessageInterface;
+use yii\web\View;
+
 /**
+ * @var MessageInterface $message Message being composed.
  * @var string $content Main view render result.
- * @var \yii\web\View $this View component instance.
- * @var \yii\mail\MessageInterface $message Message being composed.
+ * @var View $this View component instance.
  */
 ?>
 <?php $this->beginPage() ?>
@@ -13,7 +17,7 @@ declare(strict_types=1);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= Yii::$app->charset ?>" />
-    <title><?= \yii\helpers\Html::encode($this->title) ?></title>
+    <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
 <body>
@@ -22,4 +26,4 @@ declare(strict_types=1);
     <?php $this->endBody() ?>
 </body>
 </html>
-<?php $this->endPage() ?>
+<?php $this->endPage();

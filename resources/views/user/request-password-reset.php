@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use app\usecases\user\PasswordResetRequestForm;
 use yii\helpers\Html;
+use yii\web\View;
 
 /**
- * @var \app\models\PasswordResetRequestForm $model Password reset request model.
- * @var \yii\web\View $this View component instance.
+ * @var PasswordResetRequestForm $model Password reset request model.
+ * @var View $this View component instance.
  */
 $this->title = 'Request password reset';
 ?>
@@ -19,4 +21,4 @@ $this->title = 'Request password reset';
 <p>
     <?= Html::submitButton('Send') ?>
 </p>
-<?= Html::endForm() ?>
+<?= Html::endForm();
