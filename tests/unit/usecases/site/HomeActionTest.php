@@ -8,6 +8,8 @@ use app\usecases\shared\view\PhpViewRenderer;
 use app\usecases\site\HomeAction;
 use Codeception\Test\Unit;
 
+use function is_string;
+
 /**
  * Unit tests for {@see HomeAction} home page rendering.
  *
@@ -28,6 +30,20 @@ final class HomeActionTest extends Unit
         self::assertNotEmpty(
             $response,
             'Body must be non-empty.',
+        );
+        self::assertTrue(
+            is_string($response),
+            'Body must render as a string.',
+        );
+        self::assertStringContainsString(
+            '<!DOCTYPE html>',
+            $response,
+            'Output must be wrapped in the main layout.',
+        );
+        self::assertStringContainsString(
+            '<main>',
+            $response,
+            'Layout `<main>` region must wrap the view content.',
         );
     }
 

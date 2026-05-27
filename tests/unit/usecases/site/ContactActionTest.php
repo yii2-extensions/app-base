@@ -100,7 +100,7 @@ final class ContactActionTest extends Unit
             ],
         );
 
-        $handler = static function (): never {
+        $handler = static function (MailEvent $event): never {
             throw new RuntimeException('Simulated mailer transport exception.');
         };
 

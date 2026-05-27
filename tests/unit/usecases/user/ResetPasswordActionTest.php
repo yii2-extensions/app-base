@@ -118,6 +118,14 @@ final class ResetPasswordActionTest extends Unit
             $response,
             'Successful reset must produce a redirect response.',
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            'Success flash must be set after password reset.',
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('error'),
+            'Error flash must be absent on reset success.',
+        );
     }
 
     public function testActionResetPasswordPostThrowsDuringSave(): void

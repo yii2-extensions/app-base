@@ -139,6 +139,14 @@ final class RequestPasswordResetActionTest extends Unit
             $response,
             'Successful send must produce a redirect response.',
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            'Success flash must be set on successful request.',
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('errors'),
+            'Errors flash must be absent on successful request.',
+        );
     }
 
     public function testActionRequestPasswordResetPostUnknownEmailReturnsGenericSuccess(): void

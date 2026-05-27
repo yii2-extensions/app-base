@@ -7,7 +7,8 @@ namespace app\usecases\shared\view;
 use Yii;
 
 /**
- * Default {@see ViewRendererInterface} implementation that resolves PHP view templates under `@app/resources/views`.
+ * Default {@see ViewRendererInterface} implementation that resolves PHP view templates under `@app/resources/views`
+ * and wraps them in the shared `layouts/main.php` layout.
  *
  * Used by `app-base` out of the box and by the `frontend-jquery` overlay. Frontend overlays based on Inertia bind a
  * different implementation in the DI container.
@@ -19,9 +20,13 @@ final class PhpViewRenderer implements ViewRendererInterface
 {
     public function render(string $view, array $params = []): string
     {
-        return Yii::$app->view->renderFile(
-            Yii::getAlias("@app/resources/views/{$view}.php"),
-            $params,
+        $appView = Yii::$app->view;
+
+        $content = $appView->renderFile(Yii::getAlias("@app/resources/views/{$view}.php"), $params);
+
+        return $appView->renderFile(
+            Yii::getAlias('@app/resources/views/layouts/main.php'),
+            ['content' => $content],
         );
     }
 }

@@ -109,6 +109,14 @@ final class SignupActionTest extends Unit
             $response,
             'Successful signup must produce a redirect response.',
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            'Success flash must be set after signup.',
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('errors'),
+            'Errors flash must be absent on signup success.',
+        );
     }
 
     public function testActionSignupPostValidationErrors(): void

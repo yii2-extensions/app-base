@@ -169,6 +169,14 @@ final class ResendVerificationEmailActionTest extends Unit
             $response,
             'Successful send must produce a redirect response.',
         );
+        self::assertTrue(
+            Yii::$app->session->hasFlash('success'),
+            'Success flash must be set on successful send.',
+        );
+        self::assertFalse(
+            Yii::$app->session->hasFlash('errors'),
+            'Errors flash must be absent on successful send.',
+        );
     }
 
     public function testActionResendVerificationEmailRedirectsAuthenticatedUserToHome(): void
@@ -215,6 +223,7 @@ final class ResendVerificationEmailActionTest extends Unit
         Yii::$app->user->logout(false);
         Yii::$app->response->statusCode = 200;
         Yii::$app->response->headers->remove('Location');
+        Yii::$app->cache->flush();
 
         unset($_SERVER['REQUEST_URI'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_METHOD']);
 
