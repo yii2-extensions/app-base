@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use app\usecases\site\ContactForm;
 use yii\helpers\Html;
+use yii\web\View;
 
 /**
- * @var \app\models\ContactForm $model Contact form model.
- * @var \yii\web\View $this View component instance.
+ * @var ContactForm $model Contact form model.
+ * @var View $this View component instance.
  */
 $this->title = 'Contact';
 ?>
@@ -38,4 +40,4 @@ $this->title = 'Contact';
 <p>
     <?= Html::submitButton('Send') ?>
 </p>
-<?= Html::endForm() ?>
+<?= Html::endForm();

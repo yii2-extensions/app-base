@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use app\usecases\user\ResendVerificationEmailForm;
 use yii\helpers\Html;
+use yii\web\View;
 
 /**
- * @var \app\models\ResendVerificationEmailForm $model Resend verification email model.
- * @var \yii\web\View $this View component instance.
+ * @var ResendVerificationEmailForm $model Resend verification email model.
+ * @var View $this View component instance.
  */
 $this->title = 'Resend verification email';
 ?>
@@ -19,4 +21,4 @@ $this->title = 'Resend verification email';
 <p>
     <?= Html::submitButton('Send') ?>
 </p>
-<?= Html::endForm() ?>
+<?= Html::endForm();

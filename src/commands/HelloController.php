@@ -11,19 +11,13 @@ use yii\console\{Controller, ExitCode};
  *
  * Provided as an example for learning how to create console commands.
  *
- * @author Wilmer Arambula <terabytesoftw@gmail.com>
- * @since 0.1
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 class HelloController extends Controller
 {
     /**
      * Command echoes what you have entered as the message.
-     *
-     * Usage example:
-     *
-     * ```bash
-     * php yii hello/index "Hello, Yii2!"
-     * ```
      *
      * @param string $message Message to be echoed.
      *

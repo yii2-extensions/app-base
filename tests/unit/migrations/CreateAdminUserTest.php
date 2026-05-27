@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace app\tests\unit\migrations;
 
 use app\migrations\M260403000000CreateAdminUser;
-use app\models\User;
+use app\usecases\shared\user\User;
 use Codeception\Test\Unit;
 use Yii;
 
 /**
  * Unit tests for {@see M260403000000CreateAdminUser} migration.
  *
- * @author Wilmer Arambula <terabytesoftw@gmail.com>
- * @since 0.1
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class CreateAdminUserTest extends Unit
 {

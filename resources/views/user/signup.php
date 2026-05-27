@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use app\usecases\user\SignupForm;
 use yii\helpers\Html;
+use yii\web\View;
 
 /**
- * @var \app\models\SignupForm $model Signup form model.
- * @var \yii\web\View $this View component instance.
+ * @var SignupForm $model Signup form model.
+ * @var View $this View component instance.
  */
 $this->title = 'Sign up';
 ?>
@@ -27,4 +29,4 @@ $this->title = 'Sign up';
 <p>
     <?= Html::submitButton('Sign up') ?>
 </p>
-<?= Html::endForm() ?>
+<?= Html::endForm();

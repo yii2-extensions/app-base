@@ -9,11 +9,10 @@ use app\commands\HelloController;
 use function strlen;
 
 /**
- * Test spy for {@see HelloController}.
+ * Stub class for {@see HelloController} that captures output sent to STDOUT in a buffer for inspection in tests.
  *
- * Yii2's `Controller::stdout()` writes directly to the `STDOUT` stream via `fwrite`, which
- * bypasses PHPUnit / Codeception output capture. This spy buffers everything passed to
- * `stdout()` into {@see $stdoutBuffer} so tests can assert on it.
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class HelloControllerSpy extends HelloController
 {

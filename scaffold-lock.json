@@ -1,17 +1,17 @@
 {
     "providers": {
         "php-forge/baseline": {
-            "version": "0.1.1",
+            "version": "0.1.2",
             "path": "vendor/php-forge/baseline"
         },
         "php-forge/coding-standard": {
-            "version": "0.3.1",
+            "version": "0.3.2",
             "path": "vendor/php-forge/coding-standard"
         }
     },
     "files": {
         ".editorconfig": {
-            "hash": "sha256:ce1b05f921ce9d6e6ba627636b3a074ebe0b07e674513d9bf0cf60369e1485eb",
+            "hash": "sha256:f0cafe474d79d769f397f2e8839c642ca3ef1a0ce38b6e9f82ed9e49bccf84f6",
             "provider": "php-forge/baseline",
             "source": "metadata/.editorconfig",
             "mode": "append"
@@ -23,7 +23,7 @@
             "mode": "replace"
         },
         ".gitignore": {
-            "hash": "sha256:e6a684a547a9c69f5c49f9d31a9fc688dbc8704cab82d66dbbf181bc4b4f76ec",
+            "hash": "sha256:2b163298530c608cc64e94c49019d903a68a785f49f8dc5ebb77210a580e5005",
             "provider": "php-forge/baseline",
             "source": "metadata/.gitignore",
             "mode": "append"
