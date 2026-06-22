@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   codeception:
-    uses: yii2-framework/actions/.github/workflows/codeception.yml@v1
+    uses: yii2-framework/actions/.github/workflows/codeception.yml@v2
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
