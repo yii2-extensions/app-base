@@ -29,7 +29,7 @@
         "phpstan/phpstan-strict-rules": "^2.0.3",
         "yii2-extensions/debug": "^0.2@dev",
         "yii2-extensions/phpstan": "^0.4",
-        "yii2-extensions/scaffold": "^0.1"
+        "yii2-extensions/scaffold": "^0.2"
     },
     "autoload": {
         "psr-4": {
